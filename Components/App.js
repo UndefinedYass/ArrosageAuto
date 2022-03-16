@@ -53,7 +53,7 @@ export  default class App extends Component {
     <View  style={ styles.container}  >
       
       <HomeScreen/>
-      <TabBar/>
+      <TabBar itemsSelectedColor={Palette.primary_2} selected={0}  itemsSelectedTextColor={Palette.primary_2}/>
 
 
       

@@ -13,19 +13,22 @@ const DeviceCard_wraper_style : StyleProp<ViewStyle> = {
     flex:1,
     alignSelf:"stretch",
     flexDirection:'row',
-    backgroundColor:"#d6e0da",
+    backgroundColor:Palette.whitePanel,
+   // backgroundColor:"#4b815d0a",
     minHeight:80,
     margin:8,
-    borderRadius:24,
-    paddingHorizontal:10, paddingVertical:4
+    marginBottom:0,
+    justifyContent:"space-between",
 
+    borderRadius:10,
+    paddingHorizontal:10, paddingVertical:4,
+    
+    
     
 }
 
 const action_button_touchable_style : StyleProp<ViewStyle> = {
-   
-    borderRadius:6,
-    
+    borderRadius:6, 
 }
 const action_button_style : StyleProp<TextStyle> = {
     backgroundColor:Palette.primary_2,
@@ -38,6 +41,7 @@ const action_button_style : StyleProp<TextStyle> = {
 
 type DeviceCard_props = {
     label:string
+    onClick:()=>void
 
 
 }
@@ -60,10 +64,15 @@ export default class DeviceCard extends Component<DeviceCard_props, DeviceCard_s
     render() {
         return (
 
-            <View style={DeviceCard_wraper_style} >
-                <View style={{flex:1, flexDirection:"column", alignSelf:"center"}} >
-                    <Text style={{color:"#15294f"}} > {this.props.label}</Text>
-                    <Text style={{color:Palette.primary}} > -state-</Text>
+            <TouchableOpacity activeOpacity={0.5} onPress={this.props.onClick} style={DeviceCard_wraper_style} >
+                
+                <View style={{alignItems:"center", marginRight:6, flex:0.5,maxWidth:32,alignSelf:"center"}}>
+                    <SvgMi style={{width:48}}  color={Palette.inkDarkGrey} size={32} 
+                    xmldata={st.deviceHub} />
+                </View> 
+                <View style={{flex:1, flexDirection:"row", alignSelf:"center"}} >
+                    <Text style={{color:"#15294f",fontFamily:"poppins",marginRight:4}} > {this.props.label}</Text>
+                    <DeviceState state={true}/>
 
                 </View>
                 <View style={{alignSelf:"center"}} >
@@ -77,11 +86,55 @@ export default class DeviceCard extends Component<DeviceCard_props, DeviceCard_s
 
 
 
-            </View>
+            </TouchableOpacity>
         )
     }
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
+//TODO move to palette
+const on_color = Palette.deviceStateTagOn
+const off_color = Palette.deviceStateTagOFF
+
+const DeviceState_style : StyleProp<TextStyle> = {
+
+    borderColor:on_color,
+    color:on_color,
+    borderRadius:3,
+    borderWidth:1,
+    textAlign:"center", textAlignVertical:"center",
+    height:20,
+    paddingHorizontal:6,
+    alignSelf:"flex-start"
+}
+
+
+export class DeviceState extends Component<{state:boolean,overrideStyle?:StyleProp<ViewStyle>}>{
+    constructor(props) {
+        super(props)
+        this.state = {
+        }
+    }
+    render() {
+        return (
+            <Text style={[DeviceState_style,{color:this.props.state?on_color:off_color},this.props.overrideStyle]} >{(this.props.state?"ON":"OFF")} 
+            </Text>
+        )
+    }
+}
+
+
+
 
 

@@ -2,7 +2,7 @@
 
 
 import React, { Component, createRef } from 'react';
-import { Animated, TouchableHighlight, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar, TextInput, FlatList, Image, Modal, Switch, AsyncStorage, Alert, AlertButton, ProgressBarAndroid, ColorPropType, VirtualizedList, Picker, Dimensions, ViewStyle, StyleProp, TextStyle } from 'react-native';
+import  { Animated,  ImageComponent , TouchableHighlight, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar, TextInput, FlatList, Image, Modal, Switch, AsyncStorage, Alert, AlertButton, ProgressBarAndroid, ColorPropType, VirtualizedList, Picker, Dimensions, ViewStyle, StyleProp, TextStyle, ImageSourcePropType } from 'react-native';
 import SvgMi, { st } from '../Common/SvgMi';
 import { Palette } from '../Common/theme';
 
@@ -11,14 +11,16 @@ import { Palette } from '../Common/theme';
 
 const DHTPanel_wraper_style : StyleProp<ViewStyle> = {
     flex:1,
-    alignSelf:"stretch",
+    //alignSelf:"stretch",
     flexDirection:'row',
     alignItems:"center",
-    backgroundColor:Palette.panel,
-    justifyContent:"space-evenly",
+    backgroundColor:Palette.whitePanel,
+    justifyContent:"space-around",
     borderRadius: 10,
-    margin:10,
-    elevation:8
+    //margin:10,
+    marginTop:6,
+    elevation:3,
+    maxHeight:82,
     
 
     
@@ -37,29 +39,43 @@ export default class DHTPanel extends Component<DHTPanel_props, DHTPanel_state>{
     constructor(props) {
         super(props)
         this.state = {
-
         }
 
     }
-
-
-
     render() {
+       
+        /**
+         * initially there was only one DHTPanel_wraper_style panel featuring two key-value pairs in a row
+         * and i switched to separate panels todo: refactor and rename style approprately
+         */
         return (
-
-            <View style={DHTPanel_wraper_style} >
-                 <SvgMi color={"#6c9aa5"} size={48} xmldata={st.cloudCircle} />
-                <DHTPanelKeyValue keyStr='Humidity' value='33%'/>
-                <View style={{height:"80%", width:1, backgroundColor:"#66666644"}} />
-                <DHTPanelKeyValue keyStr='Tempurature' value='25°C'/>
-               
+            <View style={{flexDirection:"row", height:100,justifyContent:"space-around",alignSelf:"stretch",}}>
+            <View style={[DHTPanel_wraper_style,{marginHorizontal:8,marginRight:4}]} >
+                <View style={{alignItems:"center", flex:1,maxWidth:80}}>
+                    <SvgMi style={{width:48}}  color={"#6b90b3"} size={48} xmldata={st.cloudCircle} />
+                </View> 
                 
+                <DHTPanelKeyValue keyStr='Humidity' value='33%'/>
+                {/*<View style={{height:"62%", width:1, backgroundColor:"#66666644"}} />
+                <DHTPanelKeyValue keyStr='Tempurature' value='25°C'/>*/ }
             </View>
+            <View style={[DHTPanel_wraper_style,{marginHorizontal:8,marginLeft:4}]} >
+                <View style={{alignItems:"center", flex:1,maxWidth:80}}>
+                    <SvgMi style={{width:48}}  color={"#aa0033"} size={48} xmldata={st.deviceThermostat} />
+                </View> 
+                <DHTPanelKeyValue keyStr='Tempurature' value='25°C'/>
+                {/*<View style={{height:"62%", width:1, backgroundColor:"#66666644"}} />
+                <DHTPanelKeyValue keyStr='Tempurature' value='25°C'/>*/ }
+            </View>
+            
+            
+            </View>
+            
         )
     }
-
-
 }
+
+
 
 
 
@@ -90,7 +106,7 @@ class DHTPanelKeyValue extends Component<DHTPanelKeyValue_props, DHTPanelKeyValu
     render() {
         return (
 
-            <View style={{flexDirection:"column", alignItems:"center"}} >
+            <View style={{flexDirection:"column", alignItems:"center",flex:2}} >
                
                 <Text style={{color:"#666666"}} > {this.props.keyStr} </Text>
                 <Text style={{fontSize:18, fontWeight:"bold"}} > {this.props.value} </Text>
