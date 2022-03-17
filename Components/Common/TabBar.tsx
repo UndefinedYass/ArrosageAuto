@@ -2,7 +2,7 @@
 
 
 import React, { Component, createRef } from 'react';
-import { Animated, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar, TextInput, FlatList, Image, Modal, Switch, AsyncStorage, Alert, AlertButton, ProgressBarAndroid, ColorPropType, VirtualizedList, Picker, Dimensions, ViewStyle, StyleProp, TextStyle } from 'react-native';
+import { Animated, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar, TextInput, FlatList, Image, Modal, Switch, AsyncStorage, Alert, AlertButton, ProgressBarAndroid, ColorPropType, VirtualizedList, Picker, Dimensions, ViewStyle, StyleProp, TextStyle, Pressable } from 'react-native';
 import SvgMi, { st } from '../Common/SvgMi';
 import { Palette } from '../Common/theme';
 
@@ -215,7 +215,8 @@ const defaulUnselectedColor = Palette.inkDarkGrey
     }
     render(){
       return (
-      <View onTouchStart={()=> this.props.isDisabled|| this.selectMe()} style = {{margin:0,
+       
+      <Pressable android_ripple={{borderless:true, color:"#A5D6A7",radius:48}} onPress={()=> this.props.isDisabled|| this.selectMe()} style = {{margin:0,
         
         padding: 4,
         minHeight:60,
@@ -234,6 +235,7 @@ const defaulUnselectedColor = Palette.inkDarkGrey
          
          <SvgMi xmldata={this.props.iconXmlData} color={ this.props.isDisabled?"#444444": this.amIselected()?this.props.selectedColor||defaulSelectedColor:defaulUnselectedColor} ></SvgMi>
          
+         
          </View>}
          <View>
             <Text style={{...text_BasicLight_style,color:this.props.isDisabled?"#444444":this.amIselected()?this.props.selectedTextColor||defaulSelectedTextColor:defaulUnselectedTextColor,textAlign:"center"}}>{this.props.title}</Text>
@@ -241,7 +243,7 @@ const defaulUnselectedColor = Palette.inkDarkGrey
          </View>
        
        
-       </View>
+       </Pressable>
       )
     }
   

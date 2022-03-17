@@ -3,6 +3,7 @@
 
 import React, { Component, createRef } from 'react';
 import { Animated, TouchableHighlight, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar, TextInput, FlatList, Image, Modal, Switch, AsyncStorage, Alert, AlertButton, ProgressBarAndroid, ColorPropType, VirtualizedList, Picker, Dimensions, ViewStyle, StyleProp, TextStyle } from 'react-native';
+import { DeviceConfig } from '../../Services/ClientUtils';
 import SvgMi, { st } from '../Common/SvgMi';
 import { Palette } from '../Common/theme';
 
@@ -41,6 +42,7 @@ const action_button_style : StyleProp<TextStyle> = {
 
 type DeviceCard_props = {
     label:string
+    config:DeviceConfig
     onClick:()=>void
 
 
@@ -62,24 +64,33 @@ export default class DeviceCard extends Component<DeviceCard_props, DeviceCard_s
 
 
     render() {
+        const auto = this.props.config.mode=="automated"
+        const manual = this.props.config.mode =="manual"
         return (
 
-            <TouchableOpacity activeOpacity={0.5} onPress={this.props.onClick} style={DeviceCard_wraper_style} >
+            <TouchableOpacity activeOpacity={0.5} onPress={this.props.onClick}
+             style={[DeviceCard_wraper_style,{}]} >
                 
                 <View style={{alignItems:"center", marginRight:6, flex:0.5,maxWidth:32,alignSelf:"center"}}>
                     <SvgMi style={{width:48}}  color={Palette.inkDarkGrey} size={32} 
-                    xmldata={st.deviceHub} />
+                    xmldata={st.power} />
                 </View> 
-                <View style={{flex:1, flexDirection:"row", alignSelf:"center"}} >
-                    <Text style={{color:"#15294f",fontFamily:"poppins",marginRight:4}} > {this.props.label}</Text>
-                    <DeviceState state={true}/>
+                <View style={[{flex:1, flexDirection:"column", alignItems:"flex-start",justifyContent:"center", alignSelf:"center"}
+            ,{}]} >
+                    <View style={{ flexDirection:"row",   justifyContent:"flex-start", maxWidth:"100%", alignSelf:"flex-start", overflow:"hidden",
+                  }} >
+                        <Text  numberOfLines={1} ellipsizeMode="tail"  style={{color:"#15294f", flexShrink:1, flexWrap:"nowrap", fontFamily:"poppins",marginRight:4}} > {this.props.label}</Text>
+                        <DeviceState state={true} overrideStyle={{marginRight:4,alignSelf:"center"}}/>
+                    </View>
+                    {auto&&<Text style={{color:"#616161",fontFamily:"poppins",marginRight:4}} > - Next action note -</Text>
+}
 
                 </View>
                 <View style={{alignSelf:"center"}} >
-                    <TouchableHighlight underlayColor={"transparent"} style={action_button_touchable_style} onPress={()=>{}} >
+                    {manual&&<TouchableHighlight underlayColor={"transparent"} style={action_button_touchable_style} onPress={()=>{}} >
                     <Text style={action_button_style} > START</Text>
                        
-                    </TouchableHighlight>
+                    </TouchableHighlight>}
 
                 </View>
 

@@ -2,7 +2,7 @@
 
 
 import React, { Component, createRef } from 'react';
-import { Animated, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar, TextInput, FlatList, Image, Modal, Switch, AsyncStorage, Alert, AlertButton, ProgressBarAndroid, ColorPropType, VirtualizedList, Picker, Dimensions, ViewStyle, StyleProp, TextStyle, TouchableHighlight, DatePickerAndroid, Insets } from 'react-native';
+import { Animated, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar, TextInput, FlatList, Image, Modal, Switch, AsyncStorage, Alert, AlertButton, ProgressBarAndroid, ColorPropType, VirtualizedList, Picker, Dimensions, ViewStyle, StyleProp, TextStyle, TouchableHighlight, DatePickerAndroid, Insets, ScrollView } from 'react-native';
 import { ConfigMode, DeviceConfig } from '../../Services/ClientUtils';
 import SvgMi, { st } from '../Common/SvgMi';
 import { Palette } from '../Common/theme';
@@ -75,6 +75,7 @@ export default class DeviceScreen extends Component<DeviceScreen_props, DeviceSc
     render() {
         const auto = this.state.currentConfig.mode=="automated";
         const manual = this.state.currentConfig.mode=="manual";
+        const none = this.state.currentConfig.mode=="none"
 
         return (
 
@@ -83,27 +84,35 @@ export default class DeviceScreen extends Component<DeviceScreen_props, DeviceSc
                 onBackClick={this.props.onBack}
                 title={this.state.currentConfig.label} deviceState={this.state.currentConfig.manualState} />
                 
+                <ScrollView contentContainerStyle={{flexGrow:1}} style={{flex:1,}}>
                 <DeviceInfoSection deviceLabel={this.state.currentConfig.label} 
                 devicePin={this.props.deviceID}
                 deviceState={this.props.deviceState}
                 onLableUpdate={()=>{}}
                 />
-                
+                  <Text style={[text_options_group_style,{marginBottom:12}]} >Mode d'operation:</Text>
                 <ChipsPanel onSelectionChanged={this.handleModeSelectionChange} 
                 selection={this.state.currentConfig.mode} 
                 options={[{id:"manual",caption:"Manual"},{id:"automated",caption:"Automated"} , {id:"none",caption:"None"}]} />
                 {auto&&(
                     <AutoOptionsSection />
                 )}
-                {auto&&(
-                    <ButtonMi
-                     wrapperStyle={{"position":"absolute", bottom:42, width:"85%",height:42,alignItems:"center", justifyContent:"center", maxWidth:230,borderRadius:100, backgroundColor:Palette.primary_2}}
-                     innerTextStyle={{color:Palette.primary_2_text}}
-                     caption='SAVE CHANGES' />
-                )}
+               
                 {manual&&(
                     <View><Text >--manual control--</Text></View>
                 )}
+                 {none&&(
+                    <View style={{alignSelf:"center",flex:1,alignItems:"center",justifyContent:"center"}}><Text style={{color:"#666666",top:"25%",position:"absolute"}} >Device is disabled</Text></View>
+                )}
+
+                </ScrollView>
+                {auto&&(
+                    <ButtonMi
+                     wrapperStyle={{  width:"85%",height:42,alignItems:"center", justifyContent:"center",  maxWidth:230,borderRadius:100, marginBottom:16,  backgroundColor:Palette.primary_2}}
+                     innerTextStyle={{color:Palette.primary_2_text}}
+                     caption='SAVE CHANGES' />
+                )}
+                
 
             </View>
         )
@@ -138,8 +147,8 @@ export  class DeviceHeader extends Component<DeviceHeader_props, DeviceHeader_st
                 color='black' innerSvgMiData={st.chevron_left} innerSvgMiSize={24}
                 wrapperStyle={{backgroundColor:'transparent', width:32,height:32, borderRadius:100}}
                 />
-                <View style={{flexDirection:"row", alignItems:"center", height:40 }}>
-                <Text   style={{color:"black", marginRight:6,fontSize:16}}  > {this.props.title}</Text>
+                <View style={{flexDirection:"row", alignItems:"center", height:40,flexShrink:1 }}>
+                <Text  numberOfLines={1} ellipsizeMode="tail"  style={{color:"black", flexShrink:1, marginRight:6,fontSize:16}}  > {this.props.title}</Text>
 {                false&&<DeviceState state={this.props.deviceState} overrideStyle={{alignSelf:"center"}} ></DeviceState>
 }
                 </View> 
@@ -185,11 +194,11 @@ export  class DeviceInfoSection extends Component<DeviceInfoSection_props, Devic
             <View style={{flexDirection:"column",alignSelf:"stretch", marginHorizontal:6, marginVertical:10, padding:8, alignItems:'flex-start',backgroundColor:Palette.whitePanel, borderRadius:16,}} >
                <View style={{height:32,  flexDirection:"row", alignItems:"center", justifyContent:"flex-start"}} >
                    <Text style={{fontSize:14}} >Pin</Text>
-                   <Text style={{fontSize:14, fontWeight:"bold", marginLeft:8}} >A1</Text>
+                   <Text style={{fontSize:14, fontWeight:"bold", marginLeft:8}} >{this.props.devicePin}</Text>
                </View>
                <View style={{height:32, flexDirection:"row", alignItems:"center", justifyContent:"flex-start"}} >
-                   <Text style={{fontSize:14}} >Label</Text>
-                   <Text style={{fontSize:14, fontWeight:"bold", marginLeft:8}} >My Device #1</Text>
+                   <Text  style={{fontSize:14}} >Label</Text>
+                   <Text numberOfLines={2} ellipsizeMode="tail" style={{fontSize:14, fontWeight:"bold", marginLeft:8,flexShrink:1}} >{this.props.deviceLabel}</Text>
                </View>
                <View style={{height:32, flexDirection:"row", alignItems:"center", justifyContent:"flex-start"}} >
                    <Text style={{fontSize:14}} >Status</Text>
@@ -248,7 +257,7 @@ const chip_default_style : StyleProp<ViewStyle> = {
     borderRadius: 100,
     height:28,
     alignItems:"center", justifyContent:"center",
-    paddingHorizontal:8,
+    paddingHorizontal:12,
     marginHorizontal: 6,
     backgroundColor: Palette.whitePanel
 }
@@ -307,18 +316,17 @@ const text_options_group_style: StyleProp<TextStyle>={
 
 }
 const text_option_key_style: StyleProp<TextStyle>={
-    color:Palette.inkDarkGrey,
+    color:"#2c2c2c",
     fontSize:14,
     fontWeight:"500",
     marginLeft:10, marginVertical:4,
 
 }
 const text_option_value_style: StyleProp<TextStyle>={
-    color:"#999",
+    color:Palette.inkDarkGrey,
     fontSize:14,
     fontWeight:"100",    
     marginLeft:10,  marginBottom:4,
-
 }
 type AutoOptionsSection_props = {
 
@@ -335,11 +343,11 @@ export  class AutoOptionsSection extends Component<AutoOptionsSection_props, Aut
     render() {
         return (
 
-            <View style={{marginTop:10}} >
+            <View style={{marginTop:10, flexGrow:1}} >
                 <Text style={text_options_group_style} >Automation options:</Text>
                  <View>
                      <Text style={text_option_key_style} >Starts at</Text>
-                     <Text style={text_option_value_style} >5:00 AM</Text>
+                     <Text style={text_option_value_style} >5:00 AM 16-03-2022</Text>
                  </View>
                  <Hoz/>
                  <View>
@@ -348,8 +356,13 @@ export  class AutoOptionsSection extends Component<AutoOptionsSection_props, Aut
                  </View>
                  <Hoz/>
                  <View>
-                     <Text style={text_option_key_style} >Repeat every:</Text>
+                     <Text style={text_option_key_style} >Repeat every</Text>
                      <Text style={text_option_value_style} >24 h</Text>
+                 </View>
+                 <Hoz/>
+                 <View>
+                     <Text style={text_option_key_style} >Conditions</Text>
+                     <Text style={text_option_value_style} > - Temperature &gt; 50°C</Text>
                  </View>
                  <Hoz/>
             </View>

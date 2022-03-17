@@ -11,6 +11,45 @@ import DeviceScreen from './DeviceScreen';
 import DHTPanel from './DHTPanel';
 
 
+const dummyDevices : Device[] = [
+    {ID:"A2", currentState:false,Config:{
+        mode:"automated",
+        label:"MyAwesomeDevice",
+        manualState:false,
+        autoOptions:{
+            startsAt: new Date(Date.now()),
+            duration:1*3600,
+            reapeatEvery: 24*3600,
+            conditions: []
+
+        }
+    }},
+    {ID:"A28", currentState:false,Config:{
+        mode:"manual",
+        label:"MyAwesomeDevice",
+        manualState:false,
+        autoOptions:{
+            startsAt: new Date(Date.now()),
+            duration:1*3600,
+            reapeatEvery: 24*3600,
+            conditions: []
+
+        }
+    }},
+    {ID:"A22", currentState:false,Config:{
+        mode:"automated",
+        label:"fhgf jghfhgfj hfghjfgj fjg fj gjfj gjjghf jghf hg hgjhg gf hgf hgf gh jghghf hjgfj gjghjgh gh jgh jhg jhgfhgfjhg fhjgj jhg",
+        manualState:false,
+        autoOptions:{
+            startsAt: new Date(Date.now()),
+            duration:1*3600,
+            reapeatEvery: 24*3600,
+            conditions: []
+
+        }
+    }},
+   
+]
 
 
 const homeScreen_wraper_style : StyleProp<ViewStyle> = {
@@ -42,8 +81,10 @@ const app_title_text_style : StyleProp<TextStyle> = {
 }
 
 
-
-const section_header_style : StyleProp<TextStyle> = {
+/**
+ * app-wide bold black header
+ */
+export const section_header_style : StyleProp<TextStyle> = {
     fontSize:16,
     fontWeight:"bold",
     color:'#16141c',
@@ -68,45 +109,26 @@ export default class HomeScreen extends Component<HomeScreen_props, HomeScreen_s
         this.state = {
             isDeviceScreenOpen:false,
             currentDeviceScreenDevice:null
-
         }
-
     }
-
-
-
-   
     render() {
         return (
-
             <View style={homeScreen_wraper_style} >
                 <Modal visible={this.state.isDeviceScreenOpen} >
-                    <DeviceScreen deviceState={true} deviceID="a7" 
-                    currentConfig={{mode:"automated", label:"My Device", 
-                    autoOptions:null, manualState:false}} 
+                    <DeviceScreen deviceState={this.state.currentDeviceScreenDevice?.currentState} deviceID={this.state.currentDeviceScreenDevice?.ID} 
+                    currentConfig={this.state.currentDeviceScreenDevice?.Config}
                     onBack={(()=>{this.setState({isDeviceScreenOpen:false})}).bind(this)}
-                    
                     />
                 </Modal>
-                <View style={app_title_style} >
-                    <SvgMi color='white' size={32}
-                    style={{alignSelf:"center"}}
-                    xmldata={st.eco} />
-                    <Text style={app_title_text_style} >ArrosageAuto</Text>
-                </View>
+                <AppHeader />
                 <Text  style={section_header_style} >Sensor readings</Text>
                 <DHTPanel />
                 <Text  style={section_header_style} >Devices</Text>
-                <FlatList 
-                data={[{key:"1",label:"DEVICE LABEL 1"},{key:"2",label:"DEVICE LABEL 2"}]}
-                renderItem={(it)=>(<DeviceCard label={it.item.label} key={it.index}
-                    onClick={()=>{this.setState({isDeviceScreenOpen:true,currentDeviceScreenDevice:{"Config":{"label":it.item.label,}}})}} ></DeviceCard>)}
+                <FlatList style={{marginBottom:6}} 
+                data={dummyDevices.map(d=>({d:d,key:d.ID}))}
+                renderItem={(it)=>(<DeviceCard config={it.item.d.Config} label={it.item.d.Config.label} key={it.index}
+                    onClick={()=>{this.setState({isDeviceScreenOpen:true,currentDeviceScreenDevice:dummyDevices.find(d=>d.ID==it.item.d.ID)})}} ></DeviceCard>)}
                 ></FlatList>
-
-
-
-
-
             </View>
         )
     }
@@ -114,4 +136,19 @@ export default class HomeScreen extends Component<HomeScreen_props, HomeScreen_s
 
 }
 
+
+
+
+
+
+export function AppHeader(){
+    return (
+        <View style={app_title_style} >
+                    <SvgMi color='white' size={32}
+                    style={{alignSelf:"center"}}
+                    xmldata={st.eco} />
+                    <Text style={app_title_text_style} >ArrosageAuto</Text>
+                </View>
+    )
+}
 

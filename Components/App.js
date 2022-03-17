@@ -17,6 +17,11 @@ import TabBar from './Common/TabBar';
 import { Palette } from './Common/theme';
 import  Header  from './Header/Header';
 import HomeScreen from './Home/HomeScreen';
+import DevicesScreen from './DevicesManager/DevicesScreen';
+import SettingsScreen from './Settings/SettingsScreen';
+import AboutScreen from './Settings/AboutScreen';
+
+
 
 
 
@@ -37,6 +42,7 @@ export  default class App extends Component {
    
     super(props)
     this.state={
+      currentTabIx : 0
 
     }
     
@@ -45,6 +51,25 @@ export  default class App extends Component {
 
 
 
+  hanldeTabChange(ix){
+
+    this.setState({currentTabIx:ix})
+
+  }
+  currentScreen(tabIx){
+    switch (tabIx){
+      case 0 :
+        return <HomeScreen />
+        break;
+      case 1 : return <DevicesScreen />
+        break;
+      case 2 : return <SettingsScreen />
+        break;
+      case 3 : return <AboutScreen />
+        break;
+                  
+    }
+  }
 
   render(){
 
@@ -52,12 +77,9 @@ export  default class App extends Component {
    return (
     <View  style={ styles.container}  >
       
-      <HomeScreen/>
-      <TabBar itemsSelectedColor={Palette.primary_2} selected={0}  itemsSelectedTextColor={Palette.primary_2}/>
 
-
-      
-  
+      {this.currentScreen(this.state.currentTabIx)}
+      <TabBar onChange={this.hanldeTabChange?.bind(this)} itemsSelectedColor={Palette.primary_2} selected={this.state.currentTabIx}  itemsSelectedTextColor={Palette.primary_2}/>
     </View>
   )}
 }
