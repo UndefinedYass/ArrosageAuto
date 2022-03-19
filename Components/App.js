@@ -101,6 +101,7 @@ const styles = StyleSheet.create({
     alignContent:"flex-start",
     justifyContent:"flex-start",
     alignItems: 'center',
+    fontFamily:"Poppins-Regular",
     ...Platform.select({
       ios: { paddingTop: 20 },
       android: { paddingTop:  StatusBar.currentHeight }
@@ -111,6 +112,7 @@ const styles = StyleSheet.create({
  
   text:{
     color: "#ffffff",
+    fontFamily:"Poppins-Regular",
 
     
   },

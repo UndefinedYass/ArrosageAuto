@@ -23,8 +23,10 @@ const TabBar_wraper_style  : StyleProp<ViewStyle> = {
 }
 
 
-const text_BasicLight_style  = {
+const text_BasicLight_style : StyleProp<TextStyle>  = {
     color: "#2c2c2c",
+    fontFamily:"Roboto-Regular"
+    
 }
   
 
@@ -238,7 +240,7 @@ const defaulUnselectedColor = Palette.inkDarkGrey
          
          </View>}
          <View>
-            <Text style={{...text_BasicLight_style,color:this.props.isDisabled?"#444444":this.amIselected()?this.props.selectedTextColor||defaulSelectedTextColor:defaulUnselectedTextColor,textAlign:"center"}}>{this.props.title}</Text>
+            <Text style={[text_BasicLight_style,{color:this.props.isDisabled?"#444444":this.amIselected()?this.props.selectedTextColor||defaulSelectedTextColor:defaulUnselectedTextColor,textAlign:"center"}]}>{this.props.title}</Text>
   
          </View>
        

@@ -1,9 +1,12 @@
 
 
 
+import { pipelineTopicExpression } from '@babel/types';
+import DateTimePicker, {DateTimePickerAndroid} from '@react-native-community/datetimepicker';
 import React, { Component, createRef } from 'react';
-import { Animated, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar, TextInput, FlatList, Image, Modal, Switch, AsyncStorage, Alert, AlertButton, ProgressBarAndroid, ColorPropType, VirtualizedList, Picker, Dimensions, ViewStyle, StyleProp, TextStyle, TouchableHighlight, DatePickerAndroid, Insets, ScrollView } from 'react-native';
-import { ConfigMode, DeviceConfig } from '../../Services/ClientUtils';
+import { Animated, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar, TextInput, FlatList, Image, Modal, Switch, AsyncStorage, Alert, AlertButton, ProgressBarAndroid, ColorPropType, VirtualizedList, Picker, Dimensions, ViewStyle, StyleProp, TextStyle, TouchableHighlight, DatePickerAndroid, Insets, ScrollView, Pressable } from 'react-native';
+import DatePicker from 'react-native-date-picker';
+import { AutoOptions, ConfigMode, DeviceConfig } from '../../Services/ClientUtils';
 import SvgMi, { st } from '../Common/SvgMi';
 import { Palette } from '../Common/theme';
 import DeviceCard, { DeviceState } from './DeviceCard';
@@ -95,7 +98,7 @@ export default class DeviceScreen extends Component<DeviceScreen_props, DeviceSc
                 selection={this.state.currentConfig.mode} 
                 options={[{id:"manual",caption:"Manual"},{id:"automated",caption:"Automated"} , {id:"none",caption:"None"}]} />
                 {auto&&(
-                    <AutoOptionsSection />
+                    <AutoOptionsSection AutoOptionsObj={this.props.currentConfig.autoOptions} />
                 )}
                
                 {manual&&(
@@ -329,15 +332,25 @@ const text_option_value_style: StyleProp<TextStyle>={
     marginLeft:10,  marginBottom:4,
 }
 type AutoOptionsSection_props = {
+    AutoOptionsObj: AutoOptions
 
 }
 type AutoOptionsSection_state = {
+    currentStartsAtDate : Date,
+    currDuration : number,
+    currRepeatEvery : number,
+    currConditions: any []
+
 
 }
 export  class AutoOptionsSection extends Component<AutoOptionsSection_props, AutoOptionsSection_state>{
-    constructor(props) {
+    constructor(props:Readonly<AutoOptionsSection_props>) {
         super(props)
         this.state = {
+            currConditions:[],
+            currDuration: this.props.AutoOptionsObj.duration,
+            currRepeatEvery : props.AutoOptionsObj.reapeatEvery,
+            currentStartsAtDate : props.AutoOptionsObj.startsAt,
         }
     }
     render() {
@@ -345,10 +358,29 @@ export  class AutoOptionsSection extends Component<AutoOptionsSection_props, Aut
 
             <View style={{marginTop:10, flexGrow:1}} >
                 <Text style={text_options_group_style} >Automation options:</Text>
-                 <View>
+                 <Pressable android_ripple={{radius:200,color:"#aaaaaa"}}
+                  onPress={()=>{ DateTimePickerAndroid.open({mode: "date",
+                  
+                   style:{backgroundColor:Palette.primary_2}, 
+                   value:new Date(Date.now()),
+                   onChange:((e,date)=>{
+                       date&& this.setState({currentStartsAtDate:date}) ;
+                       (()=>{ DateTimePickerAndroid.open({mode:"time",
+                  
+                   style:{backgroundColor:Palette.primary_2}, 
+                   value:new Date(Date.now()),
+                   onChange:((e,time)=>{
+                       time&& this.setState({currentStartsAtDate:date})
+                   })
+                });return true;})();
+                   })
+                })}} 
+
+                 >
+                    
                      <Text style={text_option_key_style} >Starts at</Text>
-                     <Text style={text_option_value_style} >5:00 AM 16-03-2022</Text>
-                 </View>
+                     <Text style={text_option_value_style} >{this.state.currentStartsAtDate.toString()}</Text>
+                 </Pressable>
                  <Hoz/>
                  <View>
                      <Text style={text_option_key_style}  >Duration</Text>

@@ -55,7 +55,7 @@ export default class DHTPanel extends Component<DHTPanel_props, DHTPanel_state>{
                     <SvgMi style={{width:48}}  color={"#6b90b3"} size={48} xmldata={st.cloudCircle} />
                 </View> 
                 
-                <DHTPanelKeyValue keyStr='Humidity' value='33%'/>
+                <DHTPanelKeyValue keyStr='Humidity' value='33' value_unit='%'/>
                 {/*<View style={{height:"62%", width:1, backgroundColor:"#66666644"}} />
                 <DHTPanelKeyValue keyStr='Tempurature' value='25°C'/>*/ }
             </View>
@@ -63,7 +63,7 @@ export default class DHTPanel extends Component<DHTPanel_props, DHTPanel_state>{
                 <View style={{alignItems:"center", flex:1,maxWidth:80}}>
                     <SvgMi style={{width:48}}  color={"#aa0033"} size={48} xmldata={st.deviceThermostat} />
                 </View> 
-                <DHTPanelKeyValue keyStr='Tempurature' value='25°C'/>
+                <DHTPanelKeyValue keyStr='Tempurature' value='25' value_unit='°C'/>
                 {/*<View style={{height:"62%", width:1, backgroundColor:"#66666644"}} />
                 <DHTPanelKeyValue keyStr='Tempurature' value='25°C'/>*/ }
             </View>
@@ -84,9 +84,24 @@ export default class DHTPanel extends Component<DHTPanel_props, DHTPanel_state>{
 
 
 
+const key_text_style : StyleProp<TextStyle> = {
+    color:"#666666"
+}
+
+const value_text_style : StyleProp<TextStyle> = {
+    fontSize:22, fontWeight:"normal",
+    fontFamily:"Comfortaa-Bold"
+}
+const value_unit_text_style : StyleProp<TextStyle> = {
+    fontSize:14, fontWeight:"normal",
+    fontFamily:"Comfortaa-Regular"
+}
+
+
 type DHTPanelKeyValue_props = {
     keyStr:string
     value: string
+    value_unit?:string
 }
 type DHTPanelKeyValue_state = {
 
@@ -100,16 +115,14 @@ class DHTPanelKeyValue extends Component<DHTPanelKeyValue_props, DHTPanelKeyValu
         }
 
     }
-
-
-
     render() {
         return (
 
             <View style={{flexDirection:"column", alignItems:"center",flex:2}} >
                
-                <Text style={{color:"#666666"}} > {this.props.keyStr} </Text>
-                <Text style={{fontSize:18, fontWeight:"bold"}} > {this.props.value} </Text>
+                <Text style={key_text_style} > {this.props.keyStr} </Text>
+                <Text style={value_text_style} > {this.props.value} <Text style={value_unit_text_style} >
+                    {this.props.value_unit}</Text> </Text>
                 
                 
 

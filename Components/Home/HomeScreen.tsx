@@ -26,7 +26,7 @@ const dummyDevices : Device[] = [
     }},
     {ID:"A28", currentState:false,Config:{
         mode:"manual",
-        label:"MyAwesomeDevice",
+        label:"Electrovanne #2",
         manualState:false,
         autoOptions:{
             startsAt: new Date(Date.now()),
@@ -38,7 +38,7 @@ const dummyDevices : Device[] = [
     }},
     {ID:"A22", currentState:false,Config:{
         mode:"automated",
-        label:"fhgf jghfhgfj hfghjfgj fjg fj gjfj gjjghf jghf hg hgjhg gf hgf hgf gh jghghf hjgfj gjghjgh gh jgh jhg jhgfhgfjhg fhjgj jhg",
+        label:"Pomp a eau #1",
         manualState:false,
         autoOptions:{
             startsAt: new Date(Date.now()),
@@ -74,10 +74,11 @@ const app_title_style : StyleProp<ViewStyle> = {
 const app_title_text_style : StyleProp<TextStyle> = {
     fontSize:20,
     color:Palette.primary_2_text,
-    fontWeight:"bold",
+    //fontWeight:"bold",
     //color:'#0d2247',
-    fontFamily:"poppins",
-    alignSelf:"center"
+    fontFamily:"Comfortaa-Bold",
+    alignSelf:"center",
+    includeFontPadding:false, //solved a verrtical offsset 
 }
 
 
@@ -85,10 +86,11 @@ const app_title_text_style : StyleProp<TextStyle> = {
  * app-wide bold black header
  */
 export const section_header_style : StyleProp<TextStyle> = {
-    fontSize:16,
-    fontWeight:"bold",
-    color:'#16141c',
-    marginLeft:10
+    fontSize:18,
+    fontWeight:"normal",
+    color:'#3d474b',
+    marginLeft:10,
+    fontFamily:"Poppins-Regular",
 }
 
 
@@ -139,16 +141,23 @@ export default class HomeScreen extends Component<HomeScreen_props, HomeScreen_s
 
 
 
+const app_title_style_variant : StyleProp<TextStyle> = {
+    color: "#add8e6" 
+}
 
-
-export function AppHeader(){
+export function AppHeader() {
     return (
         <View style={app_title_style} >
-                    <SvgMi color='white' size={32}
-                    style={{alignSelf:"center"}}
-                    xmldata={st.eco} />
-                    <Text style={app_title_text_style} >ArrosageAuto</Text>
-                </View>
+            <SvgMi color='white' size={32}
+                style={{ alignSelf: "center" }}
+                xmldata={st.eco} />
+            <Text style={app_title_text_style} >
+                arrosage
+                <Text style={app_title_style_variant}>
+                    auto
+                </Text>
+            </Text>
+        </View>
     )
 }
 

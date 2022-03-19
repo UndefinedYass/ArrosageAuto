@@ -17,9 +17,11 @@ const AboutScreen_wraper_style : StyleProp<ViewStyle>={
 
 }
 
-
+/**only usedin about vies (veertically stackes key,values) */
 const values_text_style : StyleProp<TextStyle>={
-    color:Palette.inkDarkGrey,marginHorizontal:8,marginVertical:6
+    color:Palette.inkDarkGrey,marginHorizontal:8,
+    marginBottom:6,
+    marginTop:2
 
 }
 const url_text_style : StyleProp<TextStyle>={
@@ -27,6 +29,20 @@ const url_text_style : StyleProp<TextStyle>={
     ,marginHorizontal:8,marginVertical:6
 
 }
+
+
+/**
+ * used in info view ("version", "developer" and such)
+ */
+ export const minor_header_style : StyleProp<TextStyle> = {
+    fontSize:14,
+    fontWeight:"bold",
+    color:'#3d474b',
+    marginLeft:10,
+    fontFamily:"Roboto",
+    marginHorizontal:8,
+}
+
 
 
 type AboutScreen_props = {
@@ -50,23 +66,26 @@ export default class AboutScreen extends Component<AboutScreen_props, AboutScree
         return (
             <View style={AboutScreen_wraper_style} >
                  <AppHeader />
-                <Text  style={section_header_style} >About this project</Text>
-                <Text  style={values_text_style} >Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</Text>
+                <Text  style={section_header_style} >About this app</Text>
+{              false&&  <Text  style={values_text_style} >Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</Text>
+}                
+<Text  style={values_text_style} >this app is a part of an arduino-based automatique watering IoT project by Yassin El Hanouti, university sidi mohemed ben abdellah Fes. 
+{'\n'}more details on the project including the server-side source code can be found here.</Text>
 
-                <Text  style={[section_header_style]} >Developer: 
-                
-                </Text>
+
+                <Text  style={[minor_header_style]} >Version: </Text>
+                <Text  style={values_text_style} >0.1.2-alpha</Text>
+                <Text  style={[minor_header_style]} >Developer: </Text>
                 <Text  style={values_text_style} >Yassine El Hanouti</Text>
-                <Text  style={section_header_style} >UX/UI: </Text>
+                <Text  style={minor_header_style} >UX/UI: </Text>
                 <Text  style={values_text_style} >Yassine El Hanouti</Text>
-                <Text  style={section_header_style} >Source Code: </Text>
+                <Text  style={minor_header_style} >Source Code: </Text>
                 <TouchableOpacity activeOpacity={0.5}  onPress={()=>{Linking.openURL(prjRepo)}} >
                 <Text  style={url_text_style} > {prjRepo}</Text>
 
 
                 </TouchableOpacity>
 
-                <Text> - about view here -</Text>
             </View>
         )
     }
