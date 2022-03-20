@@ -6,6 +6,7 @@ import { Animated, TouchableHighlight, TouchableOpacity, StyleSheet, Text, View,
 import { DeviceConfig } from '../../Services/ClientUtils';
 import SvgMi, { st } from '../Common/SvgMi';
 import { Palette } from '../Common/theme';
+import { DeviceState } from './DeviceState';
 
 
 
@@ -113,38 +114,6 @@ export default class DeviceCard extends Component<DeviceCard_props, DeviceCard_s
 
 
 
-
-
-//TODO move to palette
-const on_color = Palette.deviceStateTagOn
-const off_color = Palette.deviceStateTagOFF
-
-const DeviceState_style : StyleProp<TextStyle> = {
-
-    borderColor:on_color,
-    color:on_color,
-    borderRadius:3,
-    borderWidth:1,
-    textAlign:"center", textAlignVertical:"center",
-    height:20,
-    paddingHorizontal:6,
-    alignSelf:"flex-start"
-}
-
-
-export class DeviceState extends Component<{state:boolean,overrideStyle?:StyleProp<ViewStyle>}>{
-    constructor(props) {
-        super(props)
-        this.state = {
-        }
-    }
-    render() {
-        return (
-            <Text style={[DeviceState_style,{color:this.props.state?on_color:off_color},this.props.overrideStyle]} >{(this.props.state?"ON":"OFF")} 
-            </Text>
-        )
-    }
-}
 
 
 
