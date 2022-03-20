@@ -11,10 +11,10 @@ import DeviceScreen from './DeviceScreen';
 import DHTPanel from './DHTPanel';
 
 
-const dummyDevices : Device[] = [
+export const dummyDevices : Device[] = [
     {ID:"A2", currentState:false,Config:{
         mode:"automated",
-        label:"MyAwesomeDevice",
+        label:"Electrovanne #1",
         manualState:false,
         autoOptions:{
             startsAt: new Date(Date.now()),
@@ -142,7 +142,7 @@ export default class HomeScreen extends Component<HomeScreen_props, HomeScreen_s
 
 
 const app_title_style_variant : StyleProp<TextStyle> = {
-    color: "#add8e6" 
+    color: Palette.app_logo_color_variant
 }
 
 export function AppHeader() {

@@ -4,9 +4,10 @@
 import { pipelineTopicExpression } from '@babel/types';
 import DateTimePicker, {DateTimePickerAndroid} from '@react-native-community/datetimepicker';
 import React, { Component, createRef } from 'react';
-import { Animated, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar, TextInput, FlatList, Image, Modal, Switch, AsyncStorage, Alert, AlertButton, ProgressBarAndroid, ColorPropType, VirtualizedList, Picker, Dimensions, ViewStyle, StyleProp, TextStyle, TouchableHighlight, DatePickerAndroid, Insets, ScrollView, Pressable } from 'react-native';
+import { Animated, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar, TextInput, FlatList, Image, Modal, Switch, AsyncStorage, Alert, AlertButton, ProgressBarAndroid, ColorPropType, VirtualizedList, Picker, Dimensions, ViewStyle, StyleProp, TextStyle, TouchableHighlight, DatePickerAndroid, Insets, ScrollView, Pressable, TouchableWithoutFeedback } from 'react-native';
 import DatePicker from 'react-native-date-picker';
 import { AutoOptions, ConfigMode, DeviceConfig } from '../../Services/ClientUtils';
+import { DurationTypeMi, DurationTypeMiFromSeconds, DurationTypeMiToSeconds, DurationTypeMiToString, GPDurationPickerMi } from '../Common/GPDurationPickerMi';
 import SvgMi, { st } from '../Common/SvgMi';
 import { Palette } from '../Common/theme';
 import DeviceCard, { DeviceState } from './DeviceCard';
@@ -102,7 +103,26 @@ export default class DeviceScreen extends Component<DeviceScreen_props, DeviceSc
                 )}
                
                 {manual&&(
-                    <View><Text >--manual control--</Text></View>
+                    <View style={{alignItems:"center", justifyContent:"center", flex:1,flexDirection:"column",}}>
+                        <ButtonMi
+                        innerTextStyle={{
+                            color:Palette.primary_2_text, fontSize:18,
+                        }}
+                        underlayColor={Palette.primary_2_brighter}
+                        wrapperStyle={{backgroundColor:Palette.primary_2,height:58, minWidth:104,margin:10,
+                            alignItems:"center", justifyContent:"center", borderRadius:10, elevation:4,
+                             paddingHorizontal:12}}
+                             caption="START" onClick={()=>{}} />
+                             <ButtonMi
+                        innerTextStyle={{
+                            color:Palette.primary_2_text, fontSize:18,
+                        }}
+                        underlayColor={Palette.lavaRed_brighter}
+                        wrapperStyle={{backgroundColor:Palette.lavaRed,height:58, minWidth:104,margin:10,
+                            alignItems:"center", justifyContent:"center", borderRadius:10,elevation:4,
+                             paddingHorizontal:12}}
+                             caption="STOP" onClick={()=>{}} />
+                    </View>
                 )}
                  {none&&(
                     <View style={{alignSelf:"center",flex:1,alignItems:"center",justifyContent:"center"}}><Text style={{color:"#666666",top:"25%",position:"absolute"}} >Device is disabled</Text></View>
@@ -110,7 +130,7 @@ export default class DeviceScreen extends Component<DeviceScreen_props, DeviceSc
 
                 </ScrollView>
                 {auto&&(
-                    <ButtonMi
+                    <ButtonMi onClick={()=>{}}
                      wrapperStyle={{  width:"85%",height:42,alignItems:"center", justifyContent:"center",  maxWidth:230,borderRadius:100, marginBottom:16,  backgroundColor:Palette.primary_2}}
                      innerTextStyle={{color:Palette.primary_2_text}}
                      caption='SAVE CHANGES' />
@@ -339,7 +359,10 @@ type AutoOptionsSection_state = {
     currentStartsAtDate : Date,
     currDuration : number,
     currRepeatEvery : number,
-    currConditions: any []
+    currConditions: any [],
+    dp_open:boolean
+    dp_initial_dur: DurationTypeMi
+    db_done_result: (dur: DurationTypeMi|null)=>void
 
 
 }
@@ -351,12 +374,36 @@ export  class AutoOptionsSection extends Component<AutoOptionsSection_props, Aut
             currDuration: this.props.AutoOptionsObj.duration,
             currRepeatEvery : props.AutoOptionsObj.reapeatEvery,
             currentStartsAtDate : props.AutoOptionsObj.startsAt,
+            dp_open:false,
+            dp_initial_dur: {unit:"d",value:1},
+            db_done_result:()=>{},
         }
+        this.openDurationPickerMi=this.openDurationPickerMi.bind(this)
+    }
+
+    openDurationPickerMi(initialDuration:DurationTypeMi,cb:(result: DurationTypeMi|null)=>void){
+        this.setState({dp_initial_dur:initialDuration, dp_open:true,db_done_result:(res)=>{cb(res);this.setState({dp_open:false})}})
     }
     render() {
+        const durationAsDTypeMi = DurationTypeMiFromSeconds(this.state.currDuration);
+        const repeatEveryAsDTypeMi = DurationTypeMiFromSeconds(this.state.currRepeatEvery);
         return (
 
             <View style={{marginTop:10, flexGrow:1}} >
+                <Modal onRequestClose={(()=>{this.setState({dp_open:false})}).bind(this)} transparent style={{height:"100%"}}  visible={this.state.dp_open}>
+                    <TouchableOpacity activeOpacity={1} style={{backgroundColor:'#00000080',height:"100%", alignContent:"center",justifyContent:"center", flexDirection:"column",alignItems:"center"}}  onPressOut={(()=>{this.setState({dp_open:false})}).bind(this)} >
+                        <TouchableOpacity activeOpacity={1} style={{}}  onPressIn={()=>{}} >
+                        <GPDurationPickerMi onDone={(num,nit)=>{
+                            this.state.db_done_result({unit:nit,value:num} as DurationTypeMi)
+                        }} onCancel={()=>{//todo messy part. this modale closure should be carried out at the invoker function 
+                            this.setState({dp_open:false})
+                        }} initialSelectedOption={this.state.dp_initial_dur.unit} 
+                        initialValue={this.state.dp_initial_dur.value} />
+                        </TouchableOpacity>
+
+                    </TouchableOpacity>
+                    
+                </Modal>
                 <Text style={text_options_group_style} >Automation options:</Text>
                  <Pressable android_ripple={{radius:200,color:"#aaaaaa"}}
                   onPress={()=>{ DateTimePickerAndroid.open({mode: "date",
@@ -382,15 +429,35 @@ export  class AutoOptionsSection extends Component<AutoOptionsSection_props, Aut
                      <Text style={text_option_value_style} >{this.state.currentStartsAtDate.toString()}</Text>
                  </Pressable>
                  <Hoz/>
-                 <View>
+                 <Pressable android_ripple={{radius:200,color:"#aaaaaa"}}
+                  onPress={()=>{ 
+                      this.openDurationPickerMi( durationAsDTypeMi, (res)=>{
+                          if(res===null) return;
+                          this.setState({currDuration:DurationTypeMiToSeconds(res)})
+                      })
+
+                  }} 
+
+                 >
+                     
+
                      <Text style={text_option_key_style}  >Duration</Text>
-                     <Text style={text_option_value_style}>30 min</Text>
-                 </View>
+                     <Text style={text_option_value_style}>{DurationTypeMiToString(durationAsDTypeMi)}</Text>
+                </Pressable>
                  <Hoz/>
-                 <View>
+                 <Pressable android_ripple={{radius:200,color:"#aaaaaa"}}
+                  onPress={()=>{ 
+                      this.openDurationPickerMi(repeatEveryAsDTypeMi,(res)=>{
+                          if(res===null) return;
+                          this.setState({currRepeatEvery:DurationTypeMiToSeconds(res)})
+                      })
+
+                  }} 
+
+                 >
                      <Text style={text_option_key_style} >Repeat every</Text>
-                     <Text style={text_option_value_style} >24 h</Text>
-                 </View>
+                     <Text style={text_option_value_style} >{DurationTypeMiToString(repeatEveryAsDTypeMi)}</Text>
+                </Pressable>
                  <Hoz/>
                  <View>
                      <Text style={text_option_key_style} >Conditions</Text>
@@ -406,7 +473,7 @@ export  class AutoOptionsSection extends Component<AutoOptionsSection_props, Aut
 
 function Hoz(){
     return (
-    <View style={{width:"100%",height:1,backgroundColor:"#c9c9c9", marginVertical:4,}} ></View>
+    <View style={{width:"100%",height:1,backgroundColor:"#c9c9c9", marginVertical:0,}} ></View>
     )
 }
 
@@ -415,6 +482,9 @@ type ButtonMi_props = {
     caption:string,
     wrapperStyle?: StyleProp<ViewStyle>
     innerTextStyle?: StyleProp<TextStyle>
+    underlayColor?: string
+    hitSlop? : Insets
+    onClick: ()=>void
 }
 export  class ButtonMi extends Component<ButtonMi_props>{
     constructor(props) {
@@ -422,7 +492,7 @@ export  class ButtonMi extends Component<ButtonMi_props>{
     }
     render() {
         return (
-                <TouchableHighlight  style={[{alignSelf:"center"},this.props.wrapperStyle]} underlayColor={Palette.primary_2_opac40}  onPress={()=>{}} >
+                <TouchableHighlight  hitSlop={this.props.hitSlop}  style={[{alignSelf:"center"},this.props.wrapperStyle]} underlayColor={this.props.underlayColor || Palette.primary_2_opac40}  onPress={this.props.onClick} >
                     <Text  style={this.props.innerTextStyle} > {this.props.caption}</Text>
                 </TouchableHighlight>
         )
