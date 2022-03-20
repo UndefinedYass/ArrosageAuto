@@ -25,6 +25,7 @@
    lightsOutBlack : "#3d474b",
    lavaRed : "#aa0033",
    lavaRed_brighter : "#c3184b",
+   lightHouse:"#f3f4f4",
    name:"#2c2c2c",
    name:"#2c2c2c",
    name:"#2c2c2c",

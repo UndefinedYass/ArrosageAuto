@@ -1,6 +1,6 @@
 import React, { Component, createRef, RefObject } from 'react';
-import { Animated, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar, TextInput, FlatList, Image, Modal, Switch, AsyncStorage, Alert, AlertButton, ProgressBarAndroid, ColorPropType, VirtualizedList, Dimensions, ViewStyle, StyleProp, TextStyle, Button } from 'react-native';
-import { Device } from '../../Services/ClientUtils';
+import { Animated, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar, TextInput, FlatList, Image, Modal, Switch, AsyncStorage, Alert, AlertButton, ProgressBarAndroid, ColorPropType, VirtualizedList, Dimensions, ViewStyle, StyleProp, TextStyle, Button, TouchableHighlight } from 'react-native';
+import { ConditionType, Conditon, Device } from '../../Services/ClientUtils';
 import SvgMi, { st } from '../Common/SvgMi';
 import { Palette } from '../Common/theme';
 import { Picker } from '@react-native-picker/picker';
@@ -110,11 +110,173 @@ export class GPDurationPickerMi extends Component<GPDurationPickerMi_props, GPDu
                 </View>
                 <View style={{flexDirection:"row",alignItems:"center",justifyContent:"flex-end"}} >
                     <ButtonMi underlayColor='#eeeeee' onClick={this.handleCancelClick.bind(this)} wrapperStyle={dialogButton_wrapper_style} innerTextStyle={dialogButton_inner_style}  caption="Cancel"  />
-                    <ButtonMi underlayColor='#eeeeee' onClick={this.handleDoneClick.bind(this)} wrapperStyle={dialogButton_wrapper_style} innerTextStyle={dialogButton_inner_style} caption='Done'/>
-                      
+                    <ButtonMi underlayColor='#eeeeee' onClick={this.handleDoneClick.bind(this)} wrapperStyle={dialogButton_wrapper_style} innerTextStyle={dialogButton_inner_style} caption='Done'/>          
                 </View>
-               
+            </View>
+        )
+    }
+}
 
+
+
+
+
+
+
+
+
+const LoopPickerMi_wraper_style : StyleProp<ViewStyle> = {
+    borderRadius: 100,
+    backgroundColor:Palette.lightsOutBlack,
+    elevation:1,
+    height:24,
+    alignItems:'center',
+    justifyContent:"center",
+    paddingHorizontal:10,
+
+}
+
+const LoopPickerMi_text_style : StyleProp<TextStyle> = {
+ 
+    fontSize:16,
+    color:"white",
+    includeFontPadding:false,
+    
+
+
+}
+type LoopPickerMiOption = {
+    caption:string, value:string
+}
+type LoopPickerMi_props = {
+
+    onChanged:(value:string)=>void
+    options:LoopPickerMiOption []
+    initialSelectionIx:number
+    /**override default wraper stl */
+    style?:StyleProp<ViewStyle>
+    /**override inner text fo,t */
+    fontFamily?:string
+}
+type LoopPickerMi_state = {
+    currentSelectedIx:number
+}
+/**
+ * 
+ */
+export class LoopPickerMi extends Component<LoopPickerMi_props, LoopPickerMi_state>{
+    constructor(props:Readonly<LoopPickerMi_props>) {
+        super(props)
+        this.state = {
+            currentSelectedIx:props.initialSelectionIx
+        }
+    }
+    loop(){
+        this.setState(old=>({currentSelectedIx:(old.currentSelectedIx+1) % this.props.options.length}),()=>{
+            this.props.onChanged(this.props.options[this.state.currentSelectedIx].value)
+        })
+    
+        
+    }
+    render() {
+        const caption = this.props.options[this.state.currentSelectedIx].caption
+        return (
+            <TouchableHighlight style={[LoopPickerMi_wraper_style,this.props.style]}
+             underlayColor={Palette.inkDarkGrey} 
+             onPress={(()=>{this.loop()}).bind(this)}>
+                <Text style={[LoopPickerMi_text_style,
+                    {fontFamily:this.props.fontFamily}]}>{caption}
+
+                </Text>
+
+            </TouchableHighlight>
+        )
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+type ConditionCreateDlg_props = {
+    onCancel?:()=>void
+    onDone?:(newCondition:Conditon)=>void
+    initialValue:Conditon
+}
+type ConditionCreateDlg_state = {
+    currentParam1:string
+    currentType:ConditionType
+    currentTargetVar : "temp"|"hum"
+}
+
+
+//todo refactor
+
+/**
+ * UI for creating (petentially editing) condition objects
+ */
+ export class ConditionCreateDlg extends Component<ConditionCreateDlg_props, ConditionCreateDlg_state>{
+    constructor(props:Readonly<ConditionCreateDlg_props>) {
+        super(props)
+        this.state = {
+            currentParam1:"50",
+            currentTargetVar:"temp",
+            currentType:"gt",
+
+        }
+        this.text_ref=createRef();
+        this.handleDoneClick=this.handleDoneClick.bind(this)
+    }
+    text_ref : RefObject<TextInput>
+    
+    handleDoneClick(){
+        let inp = Number.parseInt(this.state.currentParam1)
+        
+        if(Number.isNaN(inp)) return
+        if(inp<1) return
+
+        this.props.onDone({param1:inp,type:this.state.currentType as ConditionType, targetVar: this.state.currentTargetVar as 'hum'|'temp',param2:null})
+    }
+    handleCancelClick(){
+        this.props.onCancel()
+        
+    }
+    render() {
+        return (
+            <View style={{flexDirection:"column",  padding:10, minHeight:200, minWidth:Dimensions.get("window").width*0.8, backgroundColor:"#ffffffff", alignSelf:"center", }}>
+                <Text style={dialog_prompt_text_style} >Condition:</Text>
+                <View style={{flexDirection:"row",flex:1,alignItems:"center",justifyContent:"space-around"}} >
+                    
+                    <LoopPickerMi initialSelectionIx={0}
+                    onChanged={(val)=>{this.setState({currentTargetVar:val as "hum"|"temp"})}}
+                      options={[
+                        {caption:"Tempurature",value:"temp"},
+                          {caption:"Humidity",value:"hum"},]} />
+                    <LoopPickerMi initialSelectionIx={0}
+            onChanged={(val)=>{this.setState({currentType:val as "gt"|"lt"})}}
+ 
+                    fontFamily="Comfortaa-Regular" 
+                    style={{height:32,width:32,padding:0}}
+                    options={[{caption:">",value:"gt"},
+                    {caption:"<",value:"lt"}]}
+                     />
+                  
+                    <TextInput ref={this.text_ref} onChange={(e)=>{this.setState({currentParam1:e.nativeEvent.text})}} underlineColorAndroid={Palette.primary_2} keyboardType='numeric' style={{marginRight:4}} value={this.state.currentParam1}  ></TextInput>
+
+                </View>
+                <View style={{flexDirection:"row",alignItems:"center",justifyContent:"flex-end"}} >
+                    <ButtonMi underlayColor='#eeeeee' onClick={this.handleCancelClick.bind(this)} wrapperStyle={dialogButton_wrapper_style} innerTextStyle={dialogButton_inner_style}  caption="Cancel"  />
+                    <ButtonMi underlayColor='#eeeeee' onClick={this.handleDoneClick.bind(this)} wrapperStyle={dialogButton_wrapper_style} innerTextStyle={dialogButton_inner_style} caption='Done'/>          
+                </View>
             </View>
         )
     }

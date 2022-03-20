@@ -6,10 +6,11 @@ import DateTimePicker, {DateTimePickerAndroid} from '@react-native-community/dat
 import React, { Component, createRef } from 'react';
 import { Animated, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar, TextInput, FlatList, Image, Modal, Switch, AsyncStorage, Alert, AlertButton, ProgressBarAndroid, ColorPropType, VirtualizedList, Picker, Dimensions, ViewStyle, StyleProp, TextStyle, TouchableHighlight, DatePickerAndroid, Insets, ScrollView, Pressable, TouchableWithoutFeedback } from 'react-native';
 import DatePicker from 'react-native-date-picker';
-import { AutoOptions, ConfigMode, DeviceConfig } from '../../Services/ClientUtils';
-import { DurationTypeMi, DurationTypeMiFromSeconds, DurationTypeMiToSeconds, DurationTypeMiToString, GPDurationPickerMi } from '../Common/GPDurationPickerMi';
+import { AutoOptions, Conditon, ConfigMode, DeviceConfig } from '../../Services/ClientUtils';
+import { ConditionCreateDlg, DurationTypeMi, DurationTypeMiFromSeconds, DurationTypeMiToSeconds, DurationTypeMiToString, GPDurationPickerMi } from '../Common/GPDurationPickerMi';
 import SvgMi, { st } from '../Common/SvgMi';
 import { Palette } from '../Common/theme';
+import { ConditionsEditor } from './ConditionsEditor';
 import DeviceCard, { DeviceState } from './DeviceCard';
 import DHTPanel from './DHTPanel';
 
@@ -359,10 +360,11 @@ type AutoOptionsSection_state = {
     currentStartsAtDate : Date,
     currDuration : number,
     currRepeatEvery : number,
-    currConditions: any [],
+    currConditions: Conditon [],
     dp_open:boolean
     dp_initial_dur: DurationTypeMi
     db_done_result: (dur: DurationTypeMi|null)=>void
+    conditionForm_open : boolean
 
 
 }
@@ -370,12 +372,13 @@ export  class AutoOptionsSection extends Component<AutoOptionsSection_props, Aut
     constructor(props:Readonly<AutoOptionsSection_props>) {
         super(props)
         this.state = {
-            currConditions:[],
+            currConditions:props.AutoOptionsObj.conditions,
             currDuration: this.props.AutoOptionsObj.duration,
             currRepeatEvery : props.AutoOptionsObj.reapeatEvery,
             currentStartsAtDate : props.AutoOptionsObj.startsAt,
             dp_open:false,
             dp_initial_dur: {unit:"d",value:1},
+            conditionForm_open : false,
             db_done_result:()=>{},
         }
         this.openDurationPickerMi=this.openDurationPickerMi.bind(this)
@@ -399,6 +402,23 @@ export  class AutoOptionsSection extends Component<AutoOptionsSection_props, Aut
                             this.setState({dp_open:false})
                         }} initialSelectedOption={this.state.dp_initial_dur.unit} 
                         initialValue={this.state.dp_initial_dur.value} />
+                        </TouchableOpacity>
+
+                    </TouchableOpacity>
+                    
+                </Modal>
+                <Modal onRequestClose={(()=>{this.setState({conditionForm_open:false})}).bind(this)} transparent 
+                style={{height:"100%"}}  visible={this.state.conditionForm_open}>
+                    <TouchableOpacity activeOpacity={1} style={{backgroundColor:'#00000080',height:"100%",
+                     alignContent:"center",justifyContent:"center", flexDirection:"column",alignItems:"center"}} 
+                      onPressOut={(()=>{this.setState({conditionForm_open:false})}).bind(this)} >
+                        <TouchableOpacity activeOpacity={1} style={{}}  onPressIn={()=>{}} >
+                        <ConditionCreateDlg onDone={(newCondition)=>{
+                            this.setState(old=>({currConditions:old.currConditions.concat([newCondition]),conditionForm_open:false}))
+                        }} onCancel={()=>{
+                            this.setState({conditionForm_open:false})
+                        }} 
+                        initialValue={{param1:50,param2:null,type:"gt",targetVar:"temp"}} />
                         </TouchableOpacity>
 
                     </TouchableOpacity>
@@ -461,7 +481,11 @@ export  class AutoOptionsSection extends Component<AutoOptionsSection_props, Aut
                  <Hoz/>
                  <View>
                      <Text style={text_option_key_style} >Conditions</Text>
-                     <Text style={text_option_value_style} > - Temperature &gt; 50°C</Text>
+                     <ConditionsEditor onRemove={(c)=>{
+                         this.setState(old=>({
+                             currConditions:old.currConditions.filter(it=>(!((it.targetVar==c.targetVar)&&(it.type==c.type))))
+                             
+                             }))}} onAddClick={(()=>{this.setState({conditionForm_open:true})}).bind(this)} Conditions={this.state.currConditions} />
                  </View>
                  <Hoz/>
             </View>

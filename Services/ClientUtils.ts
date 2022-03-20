@@ -21,6 +21,7 @@ export type AutoOptions = {
 }
 export type Conditon = {
     type: ConditionType
+    targetVar : "temp"|"hum"
     param1: number
     param2: number
 }
@@ -39,7 +40,7 @@ export default class ClientUtils {
     static GetDeviceConfig (deviceID: string){
         
     }
-    static SetDeviceConfig (deviceID: string, config:DviceConfig){
+    static SetDeviceConfig (deviceID: string, config:DeviceConfig){
         
     }
     static GetTime (){

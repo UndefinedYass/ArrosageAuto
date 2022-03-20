@@ -3,7 +3,7 @@
 
 import React, { Component, createRef } from 'react';
 import { Animated, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar, TextInput, FlatList, Image, Modal, Switch, AsyncStorage, Alert, AlertButton, ProgressBarAndroid, ColorPropType, VirtualizedList, Picker, Dimensions, ViewStyle, StyleProp, TextStyle } from 'react-native';
-import { Device } from '../../Services/ClientUtils';
+import { Conditon, Device } from '../../Services/ClientUtils';
 import SvgMi, { st } from '../Common/SvgMi';
 import { Palette } from '../Common/theme';
 import DeviceCard from './DeviceCard';
@@ -44,7 +44,16 @@ export const dummyDevices : Device[] = [
             startsAt: new Date(Date.now()),
             duration:1*3600,
             reapeatEvery: 24*3600,
-            conditions: []
+            conditions: [
+                {type:"gt",
+                targetVar:"temp",
+                param1:50,
+                param2:30},
+                {type:"lt",
+                targetVar:"hum",
+                param1:30,
+                param2:30},
+            ]
 
         }
     }},
