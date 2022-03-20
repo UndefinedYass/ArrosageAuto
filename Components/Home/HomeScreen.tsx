@@ -3,7 +3,7 @@
 
 import React, { Component, createRef } from 'react';
 import { Animated, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar, TextInput, FlatList, Image, Modal, Switch, AsyncStorage, Alert, AlertButton, ProgressBarAndroid, ColorPropType, VirtualizedList, Picker, Dimensions, ViewStyle, StyleProp, TextStyle } from 'react-native';
-import { Conditon, Device } from '../../Services/ClientUtils';
+import ClientUtils, { Conditon, Device, DeviceCompact, Funcs } from '../../Services/ClientUtils';
 import SvgMi, { st } from '../Common/SvgMi';
 import { Palette } from '../Common/theme';
 import DeviceCard from './DeviceCard';
@@ -110,35 +110,58 @@ type HomeScreen_props = {
 type HomeScreen_state = {
 
     isDeviceScreenOpen : boolean
-    currentDeviceScreenDevice : Device
+    /**id only */
+    currentDeviceScreenDevice_cmp : DeviceCompact
+    devicesCollectionCompact : DeviceCompact[]
+    currentHum:number,
+    currentTemp:number,
+    currentDhtError:string|null,
 
 }
+
+
 
 export default class HomeScreen extends Component<HomeScreen_props, HomeScreen_state>{
     constructor(props) {
         super(props)
         this.state = {
             isDeviceScreenOpen:false,
-            currentDeviceScreenDevice:null
+            currentDeviceScreenDevice_cmp:{ID:"",label:"",currentState:false},
+            devicesCollectionCompact :ClientUtils.cache.DevicesHeaders,
+            currentHum:ClientUtils.cache.dhtLastResponse.readings.hum,
+            currentTemp:ClientUtils.cache.dhtLastResponse.readings.temp,
+            currentDhtError:null,
+
         }
     }
+
+    refreshData(){
+        ClientUtils.GetDevicesHeaders(false).then(devicesComp=>this.setState({devicesCollectionCompact:devicesComp}))
+        ClientUtils.GetSensorsInfo().then(resp=>this.setState({currentHum:resp.readings.hum,currentTemp:resp.readings.temp,currentDhtError:resp.error}))
+    }
+    componentDidMount(): void {
+        this.refreshData()
+    }
+
+    
     render() {
         return (
             <View style={homeScreen_wraper_style} >
                 <Modal visible={this.state.isDeviceScreenOpen} >
-                    <DeviceScreen deviceState={this.state.currentDeviceScreenDevice?.currentState} deviceID={this.state.currentDeviceScreenDevice?.ID} 
-                    currentConfig={this.state.currentDeviceScreenDevice?.Config}
-                    onBack={(()=>{this.setState({isDeviceScreenOpen:false})}).bind(this)}
+                    <DeviceScreen deviceLabel={this.state.currentDeviceScreenDevice_cmp.label} deviceState={this.state.currentDeviceScreenDevice_cmp.currentState} deviceID={this.state.currentDeviceScreenDevice_cmp.ID} 
+                    
+                    onBack={(()=>{this.setState({isDeviceScreenOpen:false});this.refreshData()}).bind(this)}
                     />
                 </Modal>
                 <AppHeader />
                 <Text  style={section_header_style} >Sensor readings</Text>
-                <DHTPanel />
+                <DHTPanel hum={this.state.currentHum} temp={this.state.currentTemp} />
                 <Text  style={section_header_style} >Devices</Text>
                 <FlatList style={{marginBottom:6}} 
-                data={dummyDevices.map(d=>({d:d,key:d.ID}))}
-                renderItem={(it)=>(<DeviceCard config={it.item.d.Config} label={it.item.d.Config.label} key={it.index}
-                    onClick={()=>{this.setState({isDeviceScreenOpen:true,currentDeviceScreenDevice:dummyDevices.find(d=>d.ID==it.item.d.ID)})}} ></DeviceCard>)}
+                data={this.state.devicesCollectionCompact.map(d=>({d:d,key:d.ID}))}
+                renderItem={(it)=>(<DeviceCard config={dummyDevices[0].Config} label={it.item.d.label}
+                     key={Funcs.DeviceCompactHash(it.item.d)} currentState={it.item.d.currentState}
+                    onClick={()=>{this.setState({isDeviceScreenOpen:true,currentDeviceScreenDevice_cmp:it.item.d})}} ></DeviceCard>)}
                 ></FlatList>
             </View>
         )

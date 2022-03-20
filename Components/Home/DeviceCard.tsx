@@ -43,6 +43,7 @@ const action_button_style : StyleProp<TextStyle> = {
 type DeviceCard_props = {
     label:string
     config:DeviceConfig
+    currentState:boolean
     onClick:()=>void
 
 
@@ -80,7 +81,7 @@ export default class DeviceCard extends Component<DeviceCard_props, DeviceCard_s
                     <View style={{ flexDirection:"row",   justifyContent:"flex-start", maxWidth:"100%", alignSelf:"flex-start", overflow:"hidden",
                   }} >
                         <Text  numberOfLines={1} ellipsizeMode="tail"  style={{color:Palette.deviceLabelColor, flexShrink:1, flexWrap:"nowrap", fontFamily:"poppins",marginRight:4}} > {this.props.label}</Text>
-                        <DeviceState state={true} overrideStyle={{marginRight:4,alignSelf:"center"}}/>
+                        <DeviceState state={this.props.currentState} overrideStyle={{marginRight:4,alignSelf:"center"}}/>
                     </View>
                     {auto&&<Text style={{color:"#616161",fontFamily:"poppins",marginRight:4}} > - Next action note -</Text>
 }

@@ -27,6 +27,8 @@ const DHTPanel_wraper_style : StyleProp<ViewStyle> = {
 }
 
 type DHTPanel_props = {
+    hum:number
+    temp:number
 
 
 }
@@ -55,7 +57,7 @@ export default class DHTPanel extends Component<DHTPanel_props, DHTPanel_state>{
                     <SvgMi style={{width:48}}  color={"#6b90b3"} size={48} xmldata={st.cloudCircle} />
                 </View> 
                 
-                <DHTPanelKeyValue keyStr='Humidity' value='33' value_unit='%'/>
+                <DHTPanelKeyValue keyStr='Humidity' value={this.props.hum.toString()} value_unit='%'/>
                 {/*<View style={{height:"62%", width:1, backgroundColor:"#66666644"}} />
                 <DHTPanelKeyValue keyStr='Tempurature' value='25°C'/>*/ }
             </View>
@@ -63,7 +65,7 @@ export default class DHTPanel extends Component<DHTPanel_props, DHTPanel_state>{
                 <View style={{alignItems:"center", flex:1,maxWidth:80}}>
                     <SvgMi style={{width:48}}  color={"#aa0033"} size={48} xmldata={st.deviceThermostat} />
                 </View> 
-                <DHTPanelKeyValue keyStr='Tempurature' value='25' value_unit='°C'/>
+                <DHTPanelKeyValue keyStr='Tempurature' value={this.props.temp.toString()} value_unit='°C'/>
                 {/*<View style={{height:"62%", width:1, backgroundColor:"#66666644"}} />
                 <DHTPanelKeyValue keyStr='Tempurature' value='25°C'/>*/ }
             </View>

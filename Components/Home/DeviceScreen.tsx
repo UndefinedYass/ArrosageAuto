@@ -6,7 +6,7 @@ import DateTimePicker, {DateTimePickerAndroid} from '@react-native-community/dat
 import React, { Component, createRef } from 'react';
 import { Animated, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar, TextInput, FlatList, Image, Modal, Switch, AsyncStorage, Alert, AlertButton, ProgressBarAndroid, ColorPropType, VirtualizedList, Picker, Dimensions, ViewStyle, StyleProp, TextStyle, TouchableHighlight, DatePickerAndroid, Insets, ScrollView, Pressable, TouchableWithoutFeedback } from 'react-native';
 import DatePicker from 'react-native-date-picker';
-import { AutoOptions, Conditon, ConfigMode, DeviceConfig } from '../../Services/ClientUtils';
+import ClientUtils, { AutoOptions, Conditon, ConfigMode, DeviceConfig } from '../../Services/ClientUtils';
 import { ConditionCreateDlg, DurationTypeMi, DurationTypeMiFromSeconds, DurationTypeMiToSeconds, DurationTypeMiToString, GPDurationPickerMi } from '../Common/GPDurationPickerMi';
 import SvgMi, { st } from '../Common/SvgMi';
 import { Palette } from '../Common/theme';
@@ -51,23 +51,38 @@ const deviceScreen_style : StyleProp<ViewStyle> = {
     height:"100%"
 }
 type DeviceScreen_props = {
-    currentConfig:DeviceConfig,
+    /**not used anymore the component will fetch data on mount*/
+    currentConfig?:DeviceConfig,
     deviceID: string,
     deviceState: boolean,
+    deviceLabel:string,
     onBack:()=>void
 }
 type DeviceScreen_state = {
     currentConfig:DeviceConfig
+    deviceState: boolean,
 
 }
 export default class DeviceScreen extends Component<DeviceScreen_props, DeviceScreen_state>{
     constructor(props:Readonly<DeviceScreen_props>) {
         super(props)
         this.state = {
-            currentConfig:props.currentConfig,
+            currentConfig:null,
+            deviceState:props.deviceState
             
         }
         this.handleModeSelectionChange=this.handleModeSelectionChange.bind(this)
+    }
+    componentDidMount(): void {
+        ClientUtils.GetDeviceConfig(this.props.deviceID,true)
+        .then(confg=>{
+            this.setState({currentConfig:confg})
+        })
+
+        ClientUtils.GetDeviceState(this.props.deviceID)
+        .then(stt=>{
+            this.setState({deviceState:stt})
+        })
     }
     handleModeSelectionChange(newMode:string){
         this.setState((old)=>({currentConfig:{...old.currentConfig, mode:newMode as ConfigMode}}))
@@ -78,29 +93,33 @@ export default class DeviceScreen extends Component<DeviceScreen_props, DeviceSc
     }
    
     render() {
-        const auto = this.state.currentConfig.mode=="automated";
-        const manual = this.state.currentConfig.mode=="manual";
-        const none = this.state.currentConfig.mode=="none"
-
+        
+        /**while fetching data can be navailable, use loader UI */
+        const availableConfig = this.state.currentConfig!=null
+        const auto =availableConfig&& this.state.currentConfig.mode=="automated";
+        const manual =availableConfig&&  this.state.currentConfig.mode=="manual";
+        const none =availableConfig&&  this.state.currentConfig.mode=="none"
+        const deviceState = this.state.deviceState
+ 
         return (
 
             <View style={deviceScreen_style} >
-                <DeviceHeader onOptionsClick={this.handleOptionsClick} 
+                { <DeviceHeader onOptionsClick={this.handleOptionsClick} 
                 onBackClick={this.props.onBack}
-                title={this.state.currentConfig.label} deviceState={this.state.currentConfig.manualState} />
-                
+                title={this.props.deviceLabel} deviceState={this.props.deviceState} />
+                }
                 <ScrollView contentContainerStyle={{flexGrow:1}} style={{flex:1,}}>
-                <DeviceInfoSection deviceLabel={this.state.currentConfig.label} 
+                <DeviceInfoSection deviceLabel={this.props.deviceLabel} 
                 devicePin={this.props.deviceID}
-                deviceState={this.props.deviceState}
+                deviceState={this.state.deviceState}
                 onLableUpdate={()=>{}}
                 />
                   <Text style={[text_options_group_style,{marginBottom:12}]} >Mode d'operation:</Text>
-                <ChipsPanel onSelectionChanged={this.handleModeSelectionChange} 
+                {availableConfig&&<ChipsPanel onSelectionChanged={this.handleModeSelectionChange} 
                 selection={this.state.currentConfig.mode} 
                 options={[{id:"manual",caption:"Manual"},{id:"automated",caption:"Automated"} , {id:"none",caption:"None"}]} />
-                {auto&&(
-                    <AutoOptionsSection AutoOptionsObj={this.props.currentConfig.autoOptions} />
+                }{auto&&(
+                    <AutoOptionsSection AutoOptionsObj={this.state.currentConfig.autoOptions} />
                 )}
                
                 {manual&&(
@@ -112,8 +131,22 @@ export default class DeviceScreen extends Component<DeviceScreen_props, DeviceSc
                         underlayColor={Palette.primary_2_brighter}
                         wrapperStyle={{backgroundColor:Palette.primary_2,height:58, minWidth:104,margin:10,
                             alignItems:"center", justifyContent:"center", borderRadius:10, elevation:4,
-                             paddingHorizontal:12}}
-                             caption="START" onClick={()=>{}} />
+                            opacity:deviceState?0.6:1, 
+                            paddingHorizontal:12}}
+                             caption="START" 
+                             isdisabled={deviceState}
+                             onClick={()=>{
+                                this.setState({deviceState:true},()=>{
+                                    requestAnimationFrame(()=>{
+                                        ClientUtils.SetDeviceState(this.props.deviceID,true)
+                                    .then((res)=>{this.setState({deviceState:res})})
+
+                                    })
+                                    
+                                    
+                                })
+                            }} 
+                             />
                              <ButtonMi
                         innerTextStyle={{
                             color:Palette.primary_2_text, fontSize:18,
@@ -121,8 +154,22 @@ export default class DeviceScreen extends Component<DeviceScreen_props, DeviceSc
                         underlayColor={Palette.lavaRed_brighter}
                         wrapperStyle={{backgroundColor:Palette.lavaRed,height:58, minWidth:104,margin:10,
                             alignItems:"center", justifyContent:"center", borderRadius:10,elevation:4,
-                             paddingHorizontal:12}}
-                             caption="STOP" onClick={()=>{}} />
+                            opacity:deviceState?1:0.6,  
+                            paddingHorizontal:12}}
+                             caption="STOP" 
+                             isdisabled={!deviceState}
+                             onClick={()=>{
+                                this.setState({deviceState:false},()=>{
+                                    requestAnimationFrame(()=>{
+                                        ClientUtils.SetDeviceState(this.props.deviceID,false)
+                                        .then((res)=>{this.setState({deviceState:res})})
+
+                                    })
+                                   
+                                    
+                                })
+                            }} 
+                             />
                     </View>
                 )}
                  {none&&(
@@ -503,6 +550,7 @@ function Hoz(){
 
 
 type ButtonMi_props = {
+    isdisabled?:boolean
     caption:string,
     wrapperStyle?: StyleProp<ViewStyle>
     innerTextStyle?: StyleProp<TextStyle>
@@ -516,7 +564,9 @@ export  class ButtonMi extends Component<ButtonMi_props>{
     }
     render() {
         return (
-                <TouchableHighlight  hitSlop={this.props.hitSlop}  style={[{alignSelf:"center"},this.props.wrapperStyle]} underlayColor={this.props.underlayColor || Palette.primary_2_opac40}  onPress={this.props.onClick} >
+                <TouchableHighlight  hitSlop={this.props.hitSlop} disabled={this.props.isdisabled}  style={[{alignSelf:"center"},this.props.wrapperStyle]} 
+                underlayColor={this.props.underlayColor || Palette.primary_2_opac40}  
+                onPress={this.props.onClick} >
                     <Text  style={this.props.innerTextStyle} > {this.props.caption}</Text>
                 </TouchableHighlight>
         )

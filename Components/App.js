@@ -20,6 +20,7 @@ import HomeScreen from './Home/HomeScreen';
 import DevicesScreen from './DevicesManager/DevicesScreen';
 import SettingsScreen from './Settings/SettingsScreen';
 import AboutScreen from './Settings/AboutScreen';
+import ClientUtils from '../Services/ClientUtils';
 
 
 
@@ -45,6 +46,7 @@ export  default class App extends Component {
       currentTabIx : 0
 
     }
+    ClientUtils.cache.dhtLastResponse.readings.temp=0;
     
 
   }
