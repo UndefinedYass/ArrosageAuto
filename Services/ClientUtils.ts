@@ -31,7 +31,7 @@ export type devicesCollectionResponseType  = {devices:DeviceCompact[]}
 export type dhtResponseType  = {readings:{temp:number,hum:number},error:string|null}
 export type BooleanStateResponse ={resState:"on"|"off"}
 export type BooleanStateRequest ={reqState:"on"|"off"}
-export type DeviceCompact = {ID:string,label:string,currentState:boolean}
+export type DeviceCompact = {ID:string,label:string,currentState:boolean,mode:ConfigMode}
 
 
 export default class ClientUtils {
@@ -121,7 +121,28 @@ export default class ClientUtils {
 
         })
     }
-    static SetDeviceConfig (deviceID: string, config:DeviceConfig){
+    /**the echong behaviour is mock-only don't use it
+     * updates cache a swell
+     */
+    static SetDeviceConfig (deviceID: string, config:DeviceConfig):Promise<DeviceConfig>{
+        return new Promise((resolve,reject)=>{
+            fetch(`http://192.168.43.205:6262/devices/${deviceID}/config`,
+            {method:"POST",body:JSON.stringify (config),
+            headers:{'Content-Type':'application/json'}})
+            .then((r)=>r.json())
+            .then((responseEcho:DeviceConfig)=>{
+                let existent_cached_device = this.cache.Devices.find(d=>d.ID==deviceID)
+                if(existent_cached_device){
+                    existent_cached_device.Config=responseEcho
+                }
+                else{
+                    this.cache.Devices = this.cache.Devices.concat([{ID:deviceID,Config:responseEcho,currentState:false}])//todo fix false
+                }
+                //alert('device set to '+ responseState.resState  )
+                resolve  (responseEcho)
+            })
+            .catch(err=>{alert(err);reject(err)})
+        })
         
     }
     static GetTime (){
@@ -160,7 +181,7 @@ export  class Funcs {
      * rendering lists as a key to determn whether the items needs to be re-rendered
      */
     static DeviceCompactHash(dvc_cp:DeviceCompact):string {
-        return dvc_cp.ID+dvc_cp.currentState+dvc_cp.label //todo make this efficient for server-side too for caching and notficatoins purposes
+        return dvc_cp.ID+dvc_cp.currentState+dvc_cp.label+dvc_cp.mode //todo make this efficient for server-side too for caching and notficatoins purposes
     }
 
 

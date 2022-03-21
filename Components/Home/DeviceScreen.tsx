@@ -86,8 +86,13 @@ export default class DeviceScreen extends Component<DeviceScreen_props, DeviceSc
         })
     }
     handleModeSelectionChange(newMode:string){
-        this.setState((old)=>({currentConfig:{...old.currentConfig, mode:newMode as ConfigMode}}))
+        this.setState((old)=>({currentConfig:{...old.currentConfig, mode:newMode as ConfigMode}}),()=>{
+            ClientUtils.SetDeviceConfig(this.props.deviceID,this.state.currentConfig).then((confg)=>{
+            
 
+            })
+
+        })
     }
     handleOptionsClick(){
 
