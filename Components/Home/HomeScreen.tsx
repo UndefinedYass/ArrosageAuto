@@ -147,7 +147,7 @@ export default class HomeScreen extends Component<HomeScreen_props, HomeScreen_s
     render() {
         return (
             <View style={homeScreen_wraper_style} >
-                <Modal visible={this.state.isDeviceScreenOpen} >
+                <Modal visible={this.state.isDeviceScreenOpen} onRequestClose={(()=>{this.setState({isDeviceScreenOpen:false});this.refreshData()}).bind(this)} >
                     <DeviceScreen deviceLabel={this.state.currentDeviceScreenDevice_cmp.label} deviceState={this.state.currentDeviceScreenDevice_cmp.currentState} deviceID={this.state.currentDeviceScreenDevice_cmp.ID} 
                     
                     onBack={(()=>{this.setState({isDeviceScreenOpen:false});this.refreshData()}).bind(this)}
@@ -159,7 +159,8 @@ export default class HomeScreen extends Component<HomeScreen_props, HomeScreen_s
                 <Text  style={section_header_style} >Devices</Text>
                 <FlatList style={{marginBottom:6}} 
                 data={this.state.devicesCollectionCompact.map(d=>({d:d,key:d.ID}))}
-                renderItem={(it)=>(<DeviceCard mode={it.item.d.mode}  label={it.item.d.label}
+                renderItem={(it)=>(<DeviceCard mode={it.item.d.mode} deviceID={it.item.d.ID}  
+                    label={it.item.d.label} requestRefresh={(()=>{this.refreshData()}).bind(this)}
                      key={Funcs.DeviceCompactHash(it.item.d)} currentState={it.item.d.currentState}
                     onClick={()=>{this.setState({isDeviceScreenOpen:true,currentDeviceScreenDevice_cmp:it.item.d})}} ></DeviceCard>)}
                 ></FlatList>

@@ -69,8 +69,8 @@ export default class AboutScreen extends Component<AboutScreen_props, AboutScree
                 <Text  style={section_header_style} >About this app</Text>
 {              false&&  <Text  style={values_text_style} >Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</Text>
 }                
-<Text  style={values_text_style} >this app is a part of an arduino-based automatique watering IoT project by Yassin El Hanouti, university sidi mohemed ben abdellah Fes. 
-{'\n'}more details on the project including the server-side source code can be found here.</Text>
+<Text  style={values_text_style} >this app is a part of an arduino-based automatique irrigation IoT project by Yassin El Hanouti & Maryam Jabrane, university Sidi Mohemed Ben Abdellah.
+{'\n'}more information about the project including the server-side code can be found  <Text  style={url_text_style} >here</Text>.</Text>
 
 
                 <Text  style={[minor_header_style]} >Version: </Text>
@@ -79,6 +79,7 @@ export default class AboutScreen extends Component<AboutScreen_props, AboutScree
                 <Text  style={values_text_style} >Yassine El Hanouti</Text>
                 <Text  style={minor_header_style} >UX/UI: </Text>
                 <Text  style={values_text_style} >Yassine El Hanouti</Text>
+		<Text  style={values_text_style} >Maryam Jabrane</Text>
                 <Text  style={minor_header_style} >Source Code: </Text>
                 <TouchableOpacity activeOpacity={0.5}  onPress={()=>{Linking.openURL(prjRepo)}} >
                 <Text  style={url_text_style} > {prjRepo}</Text>
