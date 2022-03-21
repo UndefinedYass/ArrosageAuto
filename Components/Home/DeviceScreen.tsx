@@ -12,7 +12,7 @@ import SvgMi, { st } from '../Common/SvgMi';
 import { Palette } from '../Common/theme';
 import { ConditionsEditor } from './ConditionsEditor';
 import DeviceCard from './DeviceCard';
-import { DeviceState } from "./DeviceState";
+import { DeviceState } from './DeviceState';
 import DHTPanel from './DHTPanel';
 
 
@@ -86,8 +86,13 @@ export default class DeviceScreen extends Component<DeviceScreen_props, DeviceSc
         })
     }
     handleModeSelectionChange(newMode:string){
-        this.setState((old)=>({currentConfig:{...old.currentConfig, mode:newMode as ConfigMode}}))
+        this.setState((old)=>({currentConfig:{...old.currentConfig, mode:newMode as ConfigMode}}),()=>{
+            ClientUtils.SetDeviceConfig(this.props.deviceID,this.state.currentConfig).then((confg)=>{
+            
 
+            })
+
+        })
     }
     handleOptionsClick(){
 

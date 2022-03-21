@@ -126,7 +126,7 @@ export default class HomeScreen extends Component<HomeScreen_props, HomeScreen_s
         super(props)
         this.state = {
             isDeviceScreenOpen:false,
-            currentDeviceScreenDevice_cmp:{ID:"",label:"",currentState:false},
+            currentDeviceScreenDevice_cmp:{ID:"",label:"",currentState:false,mode:"automated"},
             devicesCollectionCompact :ClientUtils.cache.DevicesHeaders,
             currentHum:ClientUtils.cache.dhtLastResponse.readings.hum,
             currentTemp:ClientUtils.cache.dhtLastResponse.readings.temp,
@@ -159,7 +159,7 @@ export default class HomeScreen extends Component<HomeScreen_props, HomeScreen_s
                 <Text  style={section_header_style} >Devices</Text>
                 <FlatList style={{marginBottom:6}} 
                 data={this.state.devicesCollectionCompact.map(d=>({d:d,key:d.ID}))}
-                renderItem={(it)=>(<DeviceCard config={dummyDevices[0].Config} label={it.item.d.label}
+                renderItem={(it)=>(<DeviceCard mode={it.item.d.mode}  label={it.item.d.label}
                      key={Funcs.DeviceCompactHash(it.item.d)} currentState={it.item.d.currentState}
                     onClick={()=>{this.setState({isDeviceScreenOpen:true,currentDeviceScreenDevice_cmp:it.item.d})}} ></DeviceCard>)}
                 ></FlatList>

@@ -20,8 +20,8 @@ export const DeviceState_style : StyleProp<ViewStyle> = {
     marginVertical:3,
     alignItems:'center',
     flexDirection:"row",
-    backgroundColor:Palette.whitePanel,
-    elevation:1
+    backgroundColor:"transparent", //alt:whitePanel
+    elevation:0 ,//alt:1
 
 }
 

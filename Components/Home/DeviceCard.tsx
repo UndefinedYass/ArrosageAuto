@@ -3,7 +3,7 @@
 
 import React, { Component, createRef } from 'react';
 import { Animated, TouchableHighlight, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar, TextInput, FlatList, Image, Modal, Switch, AsyncStorage, Alert, AlertButton, ProgressBarAndroid, ColorPropType, VirtualizedList, Picker, Dimensions, ViewStyle, StyleProp, TextStyle } from 'react-native';
-import { DeviceConfig } from '../../Services/ClientUtils';
+import { ConfigMode, DeviceConfig } from '../../Services/ClientUtils';
 import SvgMi, { st } from '../Common/SvgMi';
 import { Palette } from '../Common/theme';
 import { DeviceState } from './DeviceState';
@@ -14,7 +14,7 @@ import { DeviceState } from './DeviceState';
 const DeviceCard_wraper_style : StyleProp<ViewStyle> = {
     flex:1,
     alignSelf:"stretch",
-    flexDirection:'row',
+    flexDirection:'column',
     backgroundColor:Palette.whitePanel,
    // backgroundColor:"#4b815d0a",
     minHeight:80,
@@ -43,7 +43,8 @@ const action_button_style : StyleProp<TextStyle> = {
 
 type DeviceCard_props = {
     label:string
-    config:DeviceConfig
+    //config:DeviceConfig
+    mode:ConfigMode
     currentState:boolean
     onClick:()=>void
 
@@ -66,40 +67,48 @@ export default class DeviceCard extends Component<DeviceCard_props, DeviceCard_s
 
 
     render() {
-        const auto = this.props.config.mode=="automated"
-        const manual = this.props.config.mode =="manual"
+        const auto = this.props.mode == "automated"
+        const manual = this.props.mode == "manual"
         return (
-
-            <TouchableOpacity activeOpacity={0.5} onPress={this.props.onClick}
-             style={[DeviceCard_wraper_style,{}]} >
-                
-                <View style={{alignItems:"center", marginRight:6, flex:0.5,maxWidth:32,alignSelf:"center"}}>
-                    <SvgMi style={{width:48}}  color={Palette.inkDarkGrey} size={32} 
-                    xmldata={st.eco} />
-                </View> 
-                <View style={[{flex:1, flexDirection:"column", alignItems:"flex-start",justifyContent:"center", alignSelf:"center"}
-            ,{}]} >
-                    <View style={{ flexDirection:"row",   justifyContent:"flex-start", maxWidth:"100%", alignSelf:"flex-start", overflow:"hidden",
-                  }} >
-                        <Text  numberOfLines={1} ellipsizeMode="tail"  style={{color:Palette.deviceLabelColor, flexShrink:1, flexWrap:"nowrap", fontFamily:"poppins",marginRight:4}} > {this.props.label}</Text>
-                        <DeviceState state={this.props.currentState} overrideStyle={{marginRight:4,alignSelf:"center"}}/>
+            <TouchableHighlight underlayColor={"#f5f5f5"} activeOpacity={0.5} onPress={this.props.onClick}
+                style={[DeviceCard_wraper_style, { elevation: 1, marginBottom: 2, marginTop: 4 }]} >
+                    <View>
+                <View style={{ flexDirection: "row", flex:1, minHeight:60, alignSelf: "stretch", alignItems: "stretch" }}>
+                    <View style={{ alignItems: "center", marginRight: 6, flex: 0.5, maxWidth: 32, alignSelf: "center" }}>
+                        <SvgMi style={{ width: 48 }} color={Palette.inkDarkGrey} size={32}
+                            xmldata={st.eco} />
                     </View>
-                    {auto&&<Text style={{color:"#616161",fontFamily:"poppins",marginRight:4}} > - Next action note -</Text>
-}
+                    <View style={[{ flex: 1, flexDirection: "column", alignItems: "flex-start", justifyContent: "center", alignSelf: "center" }
+                        , {}]} >
+                        <View style={{
+                            flexDirection: "row", justifyContent: "flex-start", maxWidth: "100%", alignSelf: "flex-start", overflow: "hidden",
+                        }} >
+                            <Text numberOfLines={1} ellipsizeMode="tail" style={{ color: Palette.deviceLabelColor, flexShrink: 1, flexWrap: "nowrap", fontFamily: "poppins", marginRight: 4 }} > {this.props.label}</Text>
+                        </View>
+                        {auto && <Text style={{ color: "#616161", fontSize:12, fontFamily: "Poppins-LightItalic", marginRight: 4 }} > - Next action note -</Text>
+                        }
+
+                    </View>
+                    <View style={{ alignSelf: "center" }} >
+                        {manual && <TouchableHighlight underlayColor={"transparent"} style={action_button_touchable_style} onPress={() => { }} >
+                            <Text style={action_button_style} > START</Text>
+
+                        </TouchableHighlight>}
+
+                    </View>
+                </View>
+
+                <View style={{
+                    borderTopWidth: 1,
+                    height: 30, borderTopColor: "#e4e4e7",
+                    alignSelf: "stretch", alignItems: "center"
+                }} >
+                    <DeviceState state={this.props.currentState} overrideStyle={{ marginRight: 4, alignSelf: "flex-start" }} />
 
                 </View>
-                <View style={{alignSelf:"center"}} >
-                    {manual&&<TouchableHighlight underlayColor={"transparent"} style={action_button_touchable_style} onPress={()=>{}} >
-                    <Text style={action_button_style} > START</Text>
-                       
-                    </TouchableHighlight>}
 
                 </View>
-
-
-
-
-            </TouchableOpacity>
+            </TouchableHighlight>
         )
     }
 
