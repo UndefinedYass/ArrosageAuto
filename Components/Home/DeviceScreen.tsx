@@ -11,7 +11,8 @@ import { ConditionCreateDlg, DurationTypeMi, DurationTypeMiFromSeconds, Duration
 import SvgMi, { st } from '../Common/SvgMi';
 import { Palette } from '../Common/theme';
 import { ConditionsEditor } from './ConditionsEditor';
-import DeviceCard, { DeviceState } from './DeviceCard';
+import DeviceCard from './DeviceCard';
+import { DeviceState } from './DeviceState';
 import DHTPanel from './DHTPanel';
 
 
