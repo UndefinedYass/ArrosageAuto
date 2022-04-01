@@ -19,6 +19,7 @@ const TabBar_wraper_style  : StyleProp<ViewStyle> = {
     display:"flex",
     paddingHorizontal: 8,
     paddingVertical: 8,
+    elevation:6,
 
 }
 

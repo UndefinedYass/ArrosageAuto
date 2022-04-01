@@ -68,7 +68,7 @@ export default class DevicesScreen extends Component<DevicesScreen_props, Device
 
                 </FlatList>
                 
-                <TouchableHighlight style={floatingAction_style} onPress={()=>{}}  >
+                <TouchableHighlight underlayColor={Palette.primary_2_brighter} style={floatingAction_style} onPress={()=>{}}  >
                     <SvgMi xmldata={st.add} size={24} />
                 </TouchableHighlight>
             </View>
