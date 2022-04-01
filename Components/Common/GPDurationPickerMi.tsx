@@ -1,5 +1,5 @@
 import React, { Component, createRef, RefObject } from 'react';
-import { Animated, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar, TextInput, FlatList, Image, Modal, Switch, AsyncStorage, Alert, AlertButton, ProgressBarAndroid, ColorPropType, VirtualizedList, Dimensions, ViewStyle, StyleProp, TextStyle, Button, TouchableHighlight } from 'react-native';
+import { Animated, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar, TextInput, FlatList, Image, Modal, Switch, AsyncStorage, Alert, AlertButton, ProgressBarAndroid, ColorPropType, VirtualizedList, Dimensions, ViewStyle, StyleProp, TextStyle, Button, TouchableHighlight, KeyboardTypeOptions } from 'react-native';
 import { ConditionType, Conditon, Device } from '../../Services/ClientUtils';
 import SvgMi, { st } from '../Common/SvgMi';
 import { Palette } from '../Common/theme';
@@ -281,3 +281,103 @@ type ConditionCreateDlg_state = {
         )
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//todo refactor
+
+type GPTextFieldDlg_props = {
+    Title:string
+    Description?:string
+    /**validator returning a string means the inip is invalide, the string then specifies a user-friendely err message */
+    Validator?:(inp:string)=>string|null
+    /**defaul (false) behaviour is not to show message , only block Done button */
+    ShowValidationErrorMessage?:boolean
+    onCancel?:()=>void
+    onDone?:(text:string)=>void
+    initialValue?:string
+    keyboardType?:KeyboardTypeOptions
+}
+type GPTextFieldDlg_state = {
+    currentText:string
+}
+/**
+ * used with modal, shows a single text field, optional description and validation cb
+ */
+export class GPTextFieldDlg extends Component<GPTextFieldDlg_props, GPTextFieldDlg_state>{
+    constructor(props:Readonly<GPTextFieldDlg_props>) {
+        super(props)
+        this.state = {
+            currentText:props.initialValue?props.initialValue:""
+        }
+    }
+    text_ref : RefObject<TextInput>
+
+    isEmptyStr(){
+        return (this.state.currentText=="")||(!this.state.currentText)
+    }
+
+
+    
+    handleDoneClick(){
+        let inp = this.state.currentText;
+        if(this.props.Validator&&this.props.Validator(inp)!=null){
+            return;//todo red message logic
+        }
+        else{//valid input or no validation required
+            this.props.onDone(this.state.currentText)
+        }
+    }
+    handleCancelClick(){
+        this.props.onCancel()
+        
+    }
+    render() {
+        return (
+            <View style={{flexDirection:"column",  padding:10, minHeight:200, minWidth:Dimensions.get("window").width*0.8, backgroundColor:"#ffffffff", alignSelf:"center", }}>
+                <Text style={dialog_prompt_text_style} >{this.props.Title}</Text>
+                <View style={{flexDirection:"row",flex:1,alignItems:"center",justifyContent:"space-around"}} >
+
+                    <TextInput autoFocus ref={this.text_ref} onChange={(e)=>{this.setState({currentText:e.nativeEvent.text})}} underlineColorAndroid={Palette.primary_2} keyboardType={this.props.keyboardType} style={{marginRight:4,flex:1}} value={this.state.currentText}  ></TextInput>
+
+                </View>
+                <View style={{flexDirection:"row",alignItems:"center",justifyContent:"flex-end"}} >
+                    <ButtonMi underlayColor='#eeeeee' onClick={this.handleCancelClick.bind(this)} wrapperStyle={dialogButton_wrapper_style} innerTextStyle={dialogButton_inner_style}  caption="Cancel"  />
+                    <ButtonMi underlayColor='#eeeeee' onClick={this.handleDoneClick.bind(this)} wrapperStyle={dialogButton_wrapper_style} innerTextStyle={dialogButton_inner_style} caption='Done'/>          
+                </View>
+            </View>
+        )
+    }
+}
+
+
+
+
+
+
+
+
+
+

@@ -136,8 +136,12 @@ export default class HomeScreen extends Component<HomeScreen_props, HomeScreen_s
     }
 
     refreshData(){
-        ClientUtils.GetDevicesHeaders(false).then(devicesComp=>this.setState({devicesCollectionCompact:devicesComp}))
-        ClientUtils.GetSensorsInfo().then(resp=>this.setState({currentHum:resp.readings.hum,currentTemp:resp.readings.temp,currentDhtError:resp.error}))
+        ClientUtils.GetDevicesHeaders(false).then(devicesComp=>this.setState({devicesCollectionCompact:devicesComp})).catch(err=>{
+            alert(`Couldnt connect to ${ClientUtils.Host}\n${err?.message}`)
+        });
+        ClientUtils.GetSensorsInfo().then(resp=>this.setState({currentHum:resp.readings.hum,currentTemp:resp.readings.temp,currentDhtError:resp.error})).catch(err=>{
+            alert(`Couldnt connect to ${ClientUtils.Host}\n${err?.message}`)
+        });
     }
     componentDidMount(): void {
         this.refreshData()
@@ -158,6 +162,8 @@ export default class HomeScreen extends Component<HomeScreen_props, HomeScreen_s
                 <DHTPanel hum={this.state.currentHum} temp={this.state.currentTemp} />
                 <Text  style={section_header_style} >Devices</Text>
                 <FlatList style={{marginBottom:6}} 
+                
+                getItemLayout={(data,ix)=>({length:100,offset:112*ix,index:ix})}
                 data={this.state.devicesCollectionCompact.map(d=>({d:d,key:d.ID}))}
                 renderItem={(it)=>(<DeviceCard mode={it.item.d.mode} deviceID={it.item.d.ID}  
                     label={it.item.d.label} requestRefresh={(()=>{this.refreshData()}).bind(this)}
