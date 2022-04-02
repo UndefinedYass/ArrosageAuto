@@ -73,6 +73,7 @@ const homeScreen_wraper_style : StyleProp<ViewStyle> = {
 //this now serves as a header panel todo rename styles
 const app_title_style : StyleProp<ViewStyle> = {
     flexDirection:"row",
+    minHeight:50,
     paddingVertical:8,
     paddingHorizontal:8,
     alignSelf:"stretch",

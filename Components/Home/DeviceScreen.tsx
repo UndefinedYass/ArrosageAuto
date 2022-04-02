@@ -3,7 +3,7 @@
 
 import { pipelineTopicExpression } from '@babel/types';
 import DateTimePicker, {DateTimePickerAndroid} from '@react-native-community/datetimepicker';
-import React, { Component, createRef } from 'react';
+import React, { Component, createRef, RefObject } from 'react';
 import { Animated, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar, TextInput, FlatList, Image, Modal, Switch, AsyncStorage, Alert, AlertButton, ProgressBarAndroid, ColorPropType, VirtualizedList, Picker, Dimensions, ViewStyle, StyleProp, TextStyle, TouchableHighlight, DatePickerAndroid, Insets, ScrollView, Pressable, TouchableWithoutFeedback } from 'react-native';
 import DatePicker from 'react-native-date-picker';
 import ClientUtils, { AutoOptions, Conditon, ConfigMode, DeviceConfig } from '../../Services/ClientUtils';
@@ -72,8 +72,11 @@ export default class DeviceScreen extends Component<DeviceScreen_props, DeviceSc
             deviceState:props.deviceState
             
         }
+        this.autoOptsSection_ref=createRef();
         this.handleModeSelectionChange=this.handleModeSelectionChange.bind(this)
+        this.handleSaveChangesClick=this.handleSaveChangesClick.bind(this)
     }
+    autoOptsSection_ref : RefObject<AutoOptionsSection>
     componentDidMount(): void {
         ClientUtils.GetDeviceConfig(this.props.deviceID,true)
         .then(confg=>{
@@ -96,6 +99,17 @@ export default class DeviceScreen extends Component<DeviceScreen_props, DeviceSc
     }
     handleOptionsClick(){
 
+    }
+    handleSaveChangesClick(){
+        let newAutoOpts = this.autoOptsSection_ref.current.liftChanges();
+        this.setState((old)=>({currentConfig:{...old.currentConfig,autoOptions:newAutoOpts}}),()=>{
+            ClientUtils.SetDeviceConfig(this.props.deviceID,this.state.currentConfig).then(success=>{
+                if(!success){
+                    alert("something went wrong")
+                }
+            })
+        });
+        
     }
    
     render() {
@@ -125,7 +139,7 @@ export default class DeviceScreen extends Component<DeviceScreen_props, DeviceSc
                 selection={this.state.currentConfig.mode} 
                 options={[{id:"manual",caption:"Manual"},{id:"automated",caption:"Automated"} , {id:"none",caption:"None"}]} />
                 }{auto&&(
-                    <AutoOptionsSection AutoOptionsObj={this.state.currentConfig.autoOptions} />
+                    <AutoOptionsSection ref={this.autoOptsSection_ref}  AutoOptionsObj={this.state.currentConfig.autoOptions} />
                 )}
                
                 {manual&&(
@@ -184,7 +198,7 @@ export default class DeviceScreen extends Component<DeviceScreen_props, DeviceSc
 
                 </ScrollView>
                 {auto&&(
-                    <ButtonMi onClick={()=>{}}
+                    <ButtonMi onClick={this.handleSaveChangesClick}
                      wrapperStyle={{  width:"85%",height:42,alignItems:"center", justifyContent:"center",  maxWidth:230,borderRadius:100, marginBottom:16,  backgroundColor:Palette.primary_2}}
                      innerTextStyle={{color:Palette.primary_2_text}}
                      caption='SAVE CHANGES' />
@@ -436,7 +450,17 @@ export  class AutoOptionsSection extends Component<AutoOptionsSection_props, Aut
         }
         this.openDurationPickerMi=this.openDurationPickerMi.bind(this)
     }
-
+    //pure f wraps current fields into a new AutoOptions and returns it
+    //can be called by perent component to save things
+    liftChanges():AutoOptions{
+        let newOpts : AutoOptions = {
+            startsAt:this.state.currentStartsAtDate,
+            duration:this.state.currDuration,
+            reapeatEvery:this.state.currRepeatEvery,
+            conditions:this.state.currConditions,
+        }
+        return newOpts;
+    }
     openDurationPickerMi(initialDuration:DurationTypeMi,cb:(result: DurationTypeMi|null)=>void){
         this.setState({dp_initial_dur:initialDuration, dp_open:true,db_done_result:(res)=>{cb(res);this.setState({dp_open:false})}})
     }
@@ -478,29 +502,53 @@ export  class AutoOptionsSection extends Component<AutoOptionsSection_props, Aut
                     
                 </Modal>
                 <Text style={text_options_group_style} >Automation options:</Text>
-                 <Pressable android_ripple={{radius:200,color:"#aaaaaa"}}
-                  onPress={()=>{ DateTimePickerAndroid.open({mode: "date",
+                 <View /*android_ripple={{radius:200,color:"#aaaaaa"}}*/
                   
-                   style:{backgroundColor:Palette.primary_2}, 
-                   value:new Date(Date.now()),
-                   onChange:((e,date)=>{
-                       date&& this.setState({currentStartsAtDate:date}) ;
-                       (()=>{ DateTimePickerAndroid.open({mode:"time",
-                  
-                   style:{backgroundColor:Palette.primary_2}, 
-                   value:new Date(Date.now()),
-                   onChange:((e,time)=>{
-                       time&& this.setState({currentStartsAtDate:date})
-                   })
-                });return true;})();
-                   })
-                })}} 
 
                  >
                     
-                     <Text style={text_option_key_style} >Starts at</Text>
-                     <Text style={text_option_value_style} >{this.state.currentStartsAtDate.toString()}</Text>
-                 </Pressable>
+                     <Text style={text_option_key_style} >Start at</Text>
+                     <View style={{flexDirection:'row',marginBottom:4, justifyContent:"space-evenly",alignItems:"center"}} >
+                     <TimeChip datetime={this.state.currentStartsAtDate} onClick={()=>{
+                         DateTimePickerAndroid.open({mode: "time",
+                            style:{backgroundColor:Palette.primary_2}, 
+                            
+                            value:this.state.currentStartsAtDate?this.state.currentStartsAtDate: new Date(Date.now()),
+                            onChange:((e,date)=>{
+                                if(!date)return;
+                                this.setState(old=>{
+                                    let originDT = old.currentStartsAtDate?old.currentStartsAtDate: new Date(Date.now())
+                                    let newDT = new Date(Date.UTC(originDT.getUTCFullYear(),
+                                    originDT.getUTCMonth(), originDT.getUTCDate(),date.getUTCHours(),
+                                    date.getUTCMinutes()));
+                                    
+                                    return ({currentStartsAtDate:newDT});
+                                }) 
+                            ;})
+                        });
+                     }} />
+                     <DateChip datetime={this.state.currentStartsAtDate} onClick={()=>{
+                         DateTimePickerAndroid.open({mode: "date",
+                            style:{backgroundColor:Palette.primary_2}, 
+                            value: this.state.currentStartsAtDate?this.state.currentStartsAtDate: new Date(Date.now()),
+                            onChange:((e,date)=>{
+                                if(!date)return;
+                                this.setState(old=>{
+                                    let originDT = old.currentStartsAtDate?old.currentStartsAtDate: new Date(Date.now())
+                                    let newDT = new Date(Date.UTC(date.getUTCFullYear(),
+                                    date.getUTCMonth(), date.getUTCDate(),originDT.getUTCHours(),
+                                    originDT.getUTCMinutes()));
+                                    
+                                    return ({currentStartsAtDate:newDT});
+                                }) 
+                            ;})
+                        });
+                     }} />
+
+                     </View>
+                     
+
+                 </View>
                  <Hoz/>
                  <Pressable android_ripple={{radius:200,color:"#aaaaaa"}}
                   onPress={()=>{ 
@@ -643,3 +691,135 @@ export  class ManualControlSection extends Component<ManualControlSection_props,
 
 
 
+
+
+
+
+
+const chipWraper : StyleProp<ViewStyle> = {
+    elevation:1, borderRadius:100, height:28, 
+     marginVertical:2, 
+marginHorizontal:2, 
+backgroundColor:Palette.lightHouse,
+alignSelf:"flex-start",
+alignItems:"center", justifyContent:"center"
+}
+
+const chipWraper_inner : StyleProp<ViewStyle> = {
+    flexDirection:"row",
+    alignItems:"center", 
+justifyContent:"center",
+paddingHorizontal:6, paddingLeft:6,
+ paddingVertical:4,
+}
+
+const chip_text_style : StyleProp<TextStyle> = {
+    color:Palette.lightsOutBlack,
+    fontWeight:"700",
+    fontSize:13,
+    marginHorizontal:2
+}
+
+
+
+type TimeChip_props = {
+    onClick:()=>void
+    datetime:Date
+}
+type TimeChip_state = {
+}
+/**
+ * trigger a time picker dlg. and is used to show time of the day at autoOptions>"start at" section
+ * style should be constistent with ConditionCard
+ */
+export class TimeChip extends Component<TimeChip_props, TimeChip_state>{
+    constructor(props:Readonly<TimeChip_props>) {
+        super(props)
+        this.state = {
+        }
+    }
+    twoDigits(n:number){
+        return n<10?("0"+n):(""+n)
+    }
+    formatTime(dt:Date):string{
+        if(!dt) return"non";
+        
+        console.log(dt);
+        //return"ok";
+        let h = Math.floor(dt.getHours());
+        let s= "AM"
+        if(h>=12){ h= h-12; s="PM"}
+        if(h==0 ) h=12;
+        return `${h}:${this.twoDigits(dt.getMinutes())} ${s}`
+
+
+    }
+    render() {
+        return (
+            <TouchableHighlight style={chipWraper} underlayColor={"#aaaaaa"} onPress={this.props.onClick}>
+                <View style={chipWraper_inner} >
+                    <SvgMi size={16} style={{
+                        marginRight: 6, borderRadius: 100, height: 16, width: 16,
+                    }}
+                        xmldata={st.accessTime}
+                        color={Palette.inkDarkGrey} />
+                    <View>
+                        <Text style={chip_text_style} >{this.props.datetime?this.formatTime(this.props.datetime):"select time"}</Text>
+                    </View>
+
+                </View>
+
+            </TouchableHighlight>
+        )
+    }
+}
+
+
+
+
+
+
+
+const days = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]
+const moths = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+
+type DateChip_props = {
+    onClick:()=>void
+    datetime:Date
+}
+type DateChip_state = {
+}
+/**
+ * trigger a date picker dlg. and is used to show date only at autoOptions>"start at" section
+ */
+export class DateChip extends Component<DateChip_props, DateChip_state>{
+    constructor(props:Readonly<DateChip_props>) {
+        super(props)
+        this.state = {
+        }
+    }
+    formatDate(dt:Date):string{
+        if(!dt) return"non";
+        //console.log(dt);
+       // return"ok";
+        return `${days[dt.getDay()-1]} ${dt.getDate()}/${dt.getMonth()}/${dt.getFullYear()}`
+    }
+    render() {
+        return (
+            <TouchableHighlight style={chipWraper} underlayColor={"#aaaaaa"} onPress={this.props.onClick}>
+                <View style={chipWraper_inner} >
+                    <SvgMi size={16} style={{
+                        marginRight: 6, borderRadius: 100, height: 16, width: 16,
+                    }}
+                        xmldata={st.scheduleMi}
+                        color={Palette.inkDarkGrey} />
+                    <View>
+                        <Text style={chip_text_style} >{this.props.datetime?this.formatDate(this.props.datetime):"Select date"}</Text>
+                    </View>
+
+                </View>
+
+            </TouchableHighlight>
+        )
+    }
+}

@@ -74,7 +74,7 @@ export default class DeviceCard extends Component<DeviceCard_props, DeviceCard_s
         const manual = this.props.mode == "manual"
         const deviceState = this.props.currentState;
         return (
-            <TouchableHighlight underlayColor={"#f5f5f5"} activeOpacity={0.5} onPress={this.props.onClick}
+            <TouchableHighlight underlayColor={"#f8f9fd"} activeOpacity={0.5} onPress={this.props.onClick}
                 style={[DeviceCard_wraper_style, { elevation: 1, marginBottom: 2, marginTop: 4 }]} >
                     <View>
                 <View style={{ flexDirection: "row", flex:1, minHeight:60, alignSelf: "stretch", alignItems: "stretch" }}>

@@ -52,7 +52,7 @@ const dialogButton_inner_style : StyleProp<TextStyle>={
  const dialog_prompt_text_style : StyleProp<TextStyle>={
     color:Palette.inkDarkGrey,
     fontSize:16,
-    fontWeight:"200"
+    fontWeight:"bold"
 } 
 
 type GPDurationPickerMi_props = {
@@ -244,7 +244,7 @@ type ConditionCreateDlg_state = {
         if(Number.isNaN(inp)) return
         if(inp<1) return
 
-        this.props.onDone({param1:inp,type:this.state.currentType as ConditionType, targetVar: this.state.currentTargetVar as 'hum'|'temp',param2:null})
+        this.props.onDone({param1:inp,type:this.state.currentType as ConditionType, targetVar: this.state.currentTargetVar as 'hum'|'temp',/*param2:null*/})
     }
     handleCancelClick(){
         this.props.onCancel()
@@ -357,7 +357,7 @@ export class GPTextFieldDlg extends Component<GPTextFieldDlg_props, GPTextFieldD
     render() {
         return (
             <View style={{flexDirection:"column",  padding:10, minHeight:200, minWidth:Dimensions.get("window").width*0.8, backgroundColor:"#ffffffff", alignSelf:"center", }}>
-                <Text style={dialog_prompt_text_style} >{this.props.Title}</Text>
+                <Text style={[dialog_prompt_text_style]} >{this.props.Title}</Text>
                 <View style={{flexDirection:"row",flex:1,alignItems:"center",justifyContent:"space-around"}} >
 
                     <TextInput autoFocus ref={this.text_ref} onChange={(e)=>{this.setState({currentText:e.nativeEvent.text})}} underlineColorAndroid={Palette.primary_2} keyboardType={this.props.keyboardType} style={{marginRight:4,flex:1}} value={this.state.currentText}  ></TextInput>

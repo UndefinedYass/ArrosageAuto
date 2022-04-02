@@ -27,7 +27,7 @@ export type Conditon = {
     type: ConditionType
     targetVar : "temp"|"hum"
     param1: number
-    param2: number
+    //param2: number
 }
 export type devicesCollectionResponseType  = {devices:DeviceCompact[]}
 export type dhtResponseType  = {readings:{temp:number,hum:number},error:string|null}
@@ -171,6 +171,7 @@ export default class ClientUtils {
             }
             fetch(`http://${ClientUtils.Host}/devices/${deviceID}/config`).then(res=>(res.json()))
             .then((deviceConfg:DeviceConfig)=>{
+                deviceConfg.autoOptions.startsAt=new Date(deviceConfg.autoOptions.startsAt);
                 let existent_cached_device = this.cache.Devices.find(d=>d.ID==deviceID)
                 if(existent_cached_device){
                     existent_cached_device.Config=deviceConfg
@@ -189,22 +190,34 @@ export default class ClientUtils {
      * the echong behaviour is mock-only don't use it
      * updates cache a swell
      */
-    static SetDeviceConfig (deviceID: string, config:DeviceConfig):Promise<DeviceConfig>{
+    static SetDeviceConfig (deviceID: string, config:DeviceConfig):Promise<boolean>{
         return new Promise((resolve,reject)=>{
+            //todo date obj at autooptions should be converted to number timestamp
+            //the folowing is a temporary hack, avoiding tweaking the config object itself
+            let badDTstr = JSON.stringify(config.autoOptions.startsAt)
+            let configStr = JSON.stringify(config);
+            configStr = configStr.replace(badDTstr,config.autoOptions.startsAt.getTime().toString())
+
+            console.log(configStr)
+            console.log(badDTstr)
             fetch(`http://${ClientUtils.Host}/devices/${deviceID}/config`,
-            {method:"POST",body:JSON.stringify (config),
+            {method:"PUT",body:configStr,
             headers:{'Content-Type':'application/json'}})
-            .then((r)=>r.json())
-            .then((responseEcho:DeviceConfig)=>{
+            
+            .then((res)=>{
+                if(res.status!=200){
+                    resolve(false);
+                    return;
+                }
                 let existent_cached_device = this.cache.Devices.find(d=>d.ID==deviceID)
                 if(existent_cached_device){
-                    existent_cached_device.Config=responseEcho
+                    existent_cached_device.Config=config
                 }
                 else{
-                    this.cache.Devices = this.cache.Devices.concat([{ID:deviceID,Config:responseEcho,currentState:false}])//todo fix false
+                    this.cache.Devices = this.cache.Devices.concat([{ID:deviceID,Config:config,currentState:false}])//todo fix false
                 }
                 //alert('device set to '+ responseState.resState  )
-                resolve  (responseEcho)
+                resolve  (true)
             })
             .catch(err=>{alert(err);reject(err)})
         })
