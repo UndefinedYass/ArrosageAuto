@@ -79,7 +79,7 @@ export default class ClientUtils {
                 this.cache.DevicesHeaders=devicesRes.devices//updae cache
                 resolve  (devicesRes.devices)
             })
-            .catch(err=>{alert(err);reject(err)})
+            .catch(err=>{reject(err)})
         })
     }
 

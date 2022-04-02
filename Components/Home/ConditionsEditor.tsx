@@ -4,7 +4,7 @@ import { ConditionType, Device, Conditon } from '../../Services/ClientUtils';
 import SvgMi, { st } from '../Common/SvgMi';
 import { Palette } from '../Common/theme';
 import { Picker } from '@react-native-picker/picker';
-import { ButtonMi, IconButtonMi } from '../Home/DeviceScreen';
+import { IconButtonMi } from "../Home/IconButtonMi";
 
 
 

@@ -2,7 +2,7 @@
 
 
 import React, { Component, createRef } from 'react';
-import { Animated, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar, TextInput, FlatList, Image, Modal, Switch, AsyncStorage, Alert, AlertButton, ProgressBarAndroid, ColorPropType, VirtualizedList, Picker, Dimensions, ViewStyle, StyleProp, TextStyle } from 'react-native';
+import { Animated, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar, TextInput, FlatList, Image, Modal, Switch, AsyncStorage, Alert, AlertButton, ProgressBarAndroid, ColorPropType, VirtualizedList, Picker, Dimensions, ViewStyle, StyleProp, TextStyle, ToastAndroid } from 'react-native';
 import ClientUtils, { Conditon, Device, DeviceCompact, Funcs } from '../../Services/ClientUtils';
 import SvgMi, { st } from '../Common/SvgMi';
 import { Palette } from '../Common/theme';
@@ -48,11 +48,11 @@ export const dummyDevices : Device[] = [
                 {type:"gt",
                 targetVar:"temp",
                 param1:50,
-                param2:30},
+                },
                 {type:"lt",
                 targetVar:"hum",
                 param1:30,
-                param2:30},
+                },
             ]
 
         }
@@ -138,10 +138,10 @@ export default class HomeScreen extends Component<HomeScreen_props, HomeScreen_s
 
     refreshData(){
         ClientUtils.GetDevicesHeaders(false).then(devicesComp=>this.setState({devicesCollectionCompact:devicesComp})).catch(err=>{
-            alert(`Couldnt connect to ${ClientUtils.Host}\n${err?.message}`)
+            ToastAndroid.show(`Couldn't connect to ${ClientUtils.Host}\n${err?.message}`,1000)
         });
         ClientUtils.GetSensorsInfo().then(resp=>this.setState({currentHum:resp.readings.hum,currentTemp:resp.readings.temp,currentDhtError:resp.error})).catch(err=>{
-            alert(`Couldnt connect to ${ClientUtils.Host}\n${err?.message}`)
+            ToastAndroid.show(`Couldn't connect to ${ClientUtils.Host}\n${err?.message}`,1000)
         });
     }
     componentDidMount(): void {

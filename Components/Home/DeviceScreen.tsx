@@ -14,6 +14,7 @@ import { ConditionsEditor } from './ConditionsEditor';
 import DeviceCard from './DeviceCard';
 import { DeviceState } from './DeviceState';
 import DHTPanel from './DHTPanel';
+import { IconButtonMi } from './IconButtonMi';
 
 
 
@@ -495,7 +496,7 @@ export  class AutoOptionsSection extends Component<AutoOptionsSection_props, Aut
                         }} onCancel={()=>{
                             this.setState({conditionForm_open:false})
                         }} 
-                        initialValue={{param1:50,param2:null,type:"gt",targetVar:"temp"}} />
+                        initialValue={{param1:50/*param2:null*/,type:"gt",targetVar:"temp"}} />
                         </TouchableOpacity>
 
                     </TouchableOpacity>
@@ -626,40 +627,6 @@ export  class ButtonMi extends Component<ButtonMi_props>{
         )
     }
 }
-
-
-
-
-
-
-/**
- * simple stylable icon button with TouchableHighlight
- */
-type IconButtonMi_props = {
-    wrapperStyle?: StyleProp<ViewStyle>
-    innerSvgMiSize?: number
-    innerSvgMiData: string
-    color:string
-    underlayColor?: string
-    hitSlop : Insets
-    onClick: ()=>void
-}
-export  class IconButtonMi extends Component<IconButtonMi_props>{
-    constructor(props) {
-        super(props)
-    }
-    render() {
-        return (
-         
-                <TouchableHighlight hitSlop={this.props.hitSlop} style={[{alignSelf:"center",alignItems:"center",justifyContent:"center"},this.props.wrapperStyle]} underlayColor={this.props.underlayColor || "transparent"} 
-                 onPress={this.props.onClick} >
-                    <SvgMi color={this.props.color} size={this.props.innerSvgMiSize||24} xmldata={this.props.innerSvgMiData} />
-                </TouchableHighlight>
-          
-        )
-    }
-}
-
 
 
 

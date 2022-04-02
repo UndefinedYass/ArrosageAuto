@@ -1,11 +1,12 @@
 
 
 import React, { Component, createRef, RefObject } from 'react';
-import { Animated, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar, TextInput, FlatList, Image, Modal, Switch, AsyncStorage, Alert, AlertButton, ProgressBarAndroid, ColorPropType, VirtualizedList, Picker, Dimensions, ViewStyle, StyleProp, TextStyle, Button, TouchableHighlight, Easing } from 'react-native';
+import { Animated, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar, TextInput, FlatList, Image, Modal, Switch, AsyncStorage, Alert, AlertButton, ProgressBarAndroid, ColorPropType, VirtualizedList, Picker, Dimensions, ViewStyle, StyleProp, TextStyle, Button, TouchableHighlight, Easing, PushNotification, ToastAndroid } from 'react-native';
 import ClientUtils, { Device, DeviceCompact } from '../../Services/ClientUtils';
 import SvgMi, { st } from '../Common/SvgMi';
 import { Palette } from '../Common/theme';
-import { ButtonMi, IconButtonMi } from '../Home/DeviceScreen';
+import { ButtonMi } from '../Home/DeviceScreen';
+import { IconButtonMi } from "../Home/IconButtonMi";
 import { AppHeader, dummyDevices, section_header_style } from '../Home/HomeScreen';
 import DeviceDefinitionCard from './DeviceDefinitionCard';
 
@@ -85,7 +86,7 @@ export default class DevicesScreen extends Component<DevicesScreen_props, Device
 
     refreshData(){
         ClientUtils.GetDevicesHeaders(false).then(devicesComp=>this.setState({devicesCollectionCompact:devicesComp})).catch(err=>{
-            alert(`Couldnt connect to ${ClientUtils.Host}\n${err?.message}`)
+            ToastAndroid.show(`Couldn't connect to ${ClientUtils.Host}\n${err?.message}`,1000)
         });
        
     }
@@ -131,8 +132,9 @@ export default class DevicesScreen extends Component<DevicesScreen_props, Device
             }
             
         }
-       
-        alert(`Deleted ${deletedIDS.length} devices`);
+        ToastAndroid.show(`Deleted ${deletedIDS.length} devices`,1000)
+        
+        //alert(`Deleted ${deletedIDS.length} devices`);
         ClientUtils.cache.Devices = ClientUtils.cache.Devices.filter(d=>deletedIDS.includes(d.ID)==false)
         ClientUtils.cache.DevicesHeaders = ClientUtils.cache.DevicesHeaders.filter(d=>deletedIDS.includes(d.ID)==false)
         this.refreshData();
@@ -158,6 +160,8 @@ export default class DevicesScreen extends Component<DevicesScreen_props, Device
                             ClientUtils.CreateDevice(new_d).then(success=>{
                             if(!success) alert("something went wrong");
                             else{
+                                ToastAndroid.show(`Created device '${new_d.Config.label}'`,1000)
+                                
                                 this.refreshData();
                                 this.setState({createDeviceDlg_open:false})
                             }
@@ -225,8 +229,9 @@ const dialogButton_wrapper_style : StyleProp<ViewStyle>={
 } 
 const dialogButton_inner_style : StyleProp<TextStyle>={
     color:Palette.primary_2,
-    fontSize:16,
+    fontSize:14,
     fontWeight:"700",
+    fontVariant:["small-caps"]
     
 }
 
@@ -248,11 +253,24 @@ export class CreateDeviceDlg extends Component<CreateDeviceDlg_props, CreateDevi
     constructor(props:Readonly<CreateDeviceDlg_props>) {
         super(props)
         this.state = {
-            currentLabel:"New Pomp",
-            currentPin:"5",
+            currentLabel:"",
+            currentPin:this.determinUnusedPin(),
         }
+        this.text_ref= createRef()
     }
     text_ref : RefObject<TextInput>
+
+    componentDidMount(): void {
+        //this.text_ref.current.focus()
+    }
+
+    determinUnusedPin():string{
+        let i = 1;
+        while(ClientUtils.cache.DevicesHeaders.some(d=>d.ID==i.toString())){
+            i++;
+        }
+        return i.toString();
+    }
 
     isEmptyStr(){
         return (this.state.currentLabel=="")||(!this.state.currentLabel)
@@ -261,11 +279,24 @@ export class CreateDeviceDlg extends Component<CreateDeviceDlg_props, CreateDevi
     validNumSTR(s:string){
         return Number.isNaN(Number.parseInt(s))==false;
     }
+    canProceed():boolean{
+        let labelInp = this.state.currentLabel;
+        let pinInp = this.state.currentPin;
+        let validate_err= this.validate(pinInp,labelInp)
+        if(validate_err!=null){
+            return false
+        }
+        return true;
+
+    }
     /**
      * validates data format and cheks locally whether pin is reserved
      * @returns 
      */
     validate(pin_inp,lbl_inp):null|string{
+        if(this.isEmptyStr()){
+            return 'invalid label'
+        }
         if(this.validNumSTR(pin_inp)==false){
             return "invalid gpio pin number";
         }
@@ -292,26 +323,28 @@ export class CreateDeviceDlg extends Component<CreateDeviceDlg_props, CreateDevi
         
     }
     render() {
+        const valid= this.validate(this.state.currentPin,this.state.currentLabel)==null
         return (
-            <View style={{flexDirection:"column",  padding:10, minHeight:200, minWidth:Dimensions.get("window").width*0.8, backgroundColor:"#ffffffff", alignSelf:"center", }}>
-                <Text style={{color:Palette.inkDarkGrey, fontSize:16,fontWeight:"bold"}} >{"New device"}</Text>
-                
-                <View style={{flexDirection:"row",flex:1,alignItems:"center",justifyContent:"flex-start"}} >
-                     <Text style={{color:Palette.inkDarkGrey, marginRight:4, fontSize:16,fontWeight:"200"}} >{"Pin:"}</Text>
+            <View style={{ flexDirection: "column", padding: 10, paddingTop:14,paddingHorizontal:12, minHeight: 160, minWidth: Dimensions.get("window").width * 0.8, backgroundColor: "#ffffffff", alignSelf: "center", }}>
+                <Text style={{ color: Palette.inkDarkGrey, fontSize: 17, fontWeight: "bold" }} 
+                >New device</Text>
+                <View style={{ marginLeft:6, flexDirection: "row", flex: 1,  alignItems: "center", justifyContent: "space-around" }} >
 
-                    <TextInput autoFocus ref={this.text_ref} onChange={(e)=>{this.setState({currentPin:e.nativeEvent.text})}} underlineColorAndroid={Palette.primary_2}  keyboardType={"numeric"} style={{marginRight:4,maxWidth:40}} value={this.state.currentPin}  ></TextInput>
+                    <TextInput placeholder='Label'  autoCorrect={false}  value={this.state.currentLabel} autoFocus selectTextOnFocus  ref={this.text_ref} onChange={(e) => { this.setState({ currentLabel: e.nativeEvent.text }) }} underlineColorAndroid={Palette.primary_2} style={{ marginRight: 4, fontWeight:"400", fontSize:17, flex: 1 }}  ></TextInput>
 
                 </View>
-                <View style={{flexDirection:"row",flex:1,alignItems:"center",justifyContent:"space-around"}} >
-                    <Text style={{color:Palette.inkDarkGrey, marginRight:4, fontSize:16,fontWeight:"200"}} >{"Label:"}</Text>
+                <View style={{  marginLeft:6,flexDirection: "row", flex: 1, alignItems: "center", justifyContent: "flex-start" }} >
 
-                    <TextInput autoFocus ref={this.text_ref} onChange={(e)=>{this.setState({currentLabel:e.nativeEvent.text})}} underlineColorAndroid={Palette.primary_2}  style={{marginRight:4,flex:1}} value={this.state.currentLabel}  ></TextInput>
-                    
+                    <TextInput placeholder='GPIO' selectTextOnFocus  onChange={(e) => { this.setState({ currentPin: e.nativeEvent.text }) }} underlineColorAndroid={Palette.primary_2} keyboardType={"numeric"} style={{ marginRight: 4, maxWidth: 40 }} value={this.state.currentPin}  ></TextInput>
+
                 </View>
-                
-                <View style={{flexDirection:"row",alignItems:"center",justifyContent:"flex-end"}} >
-                    <ButtonMi underlayColor='#eeeeee' onClick={this.handleCancelClick.bind(this)} wrapperStyle={dialogButton_wrapper_style} innerTextStyle={dialogButton_inner_style}  caption="Cancel"  />
-                    <ButtonMi underlayColor='#eeeeee' onClick={this.handleDoneClick.bind(this)} wrapperStyle={dialogButton_wrapper_style} innerTextStyle={dialogButton_inner_style} caption='Done'/>          
+
+
+                <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "flex-end" }} >
+                    <ButtonMi underlayColor='#eeeeee'  onClick={this.handleCancelClick.bind(this)} wrapperStyle={dialogButton_wrapper_style} innerTextStyle={dialogButton_inner_style} caption="CANCEL" />
+                    <ButtonMi underlayColor='#eeeeee' onClick={valid? this.handleDoneClick.bind(this):undefined}
+                     wrapperStyle={dialogButton_wrapper_style} innerTextStyle={[dialogButton_inner_style,
+                     !valid&&{color:"#888888"}]} caption='CREATE DEVICE' />
                 </View>
             </View>
         )
