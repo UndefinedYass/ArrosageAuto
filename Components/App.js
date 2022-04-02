@@ -46,7 +46,7 @@ export  default class App extends Component {
       currentTabIx : 0
 
     }
-    ClientUtils.cache.dhtLastResponse.readings.temp=0;
+    //ClientUtils.cache.dhtLastResponse.readings.temp=0;
     
 
   }

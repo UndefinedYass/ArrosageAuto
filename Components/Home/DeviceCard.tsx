@@ -6,7 +6,7 @@ import { Animated, TouchableHighlight, TouchableOpacity, StyleSheet, Text, View,
 import ClientUtils, { ConfigMode, DeviceConfig } from '../../Services/ClientUtils';
 import SvgMi, { st } from '../Common/SvgMi';
 import { Palette } from '../Common/theme';
-import { ButtonMi } from './DeviceScreen';
+import { ButtonMi } from "./ButtonMi";
 import { DeviceState } from './DeviceState';
 
 

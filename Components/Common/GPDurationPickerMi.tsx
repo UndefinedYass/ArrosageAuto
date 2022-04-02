@@ -4,7 +4,7 @@ import { ConditionType, Conditon, Device } from '../../Services/ClientUtils';
 import SvgMi, { st } from '../Common/SvgMi';
 import { Palette } from '../Common/theme';
 import { Picker } from '@react-native-picker/picker';
-import { ButtonMi } from '../Home/DeviceScreen';
+import { ButtonMi } from "../Home/ButtonMi";
 
 
 export type DurationTypeMi = {

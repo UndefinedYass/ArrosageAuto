@@ -6,7 +6,7 @@ import ClientUtils, { Device } from '../../Services/ClientUtils';
 import { GPTextFieldDlg } from '../Common/GPDurationPickerMi';
 import SvgMi, { st } from '../Common/SvgMi';
 import { Palette } from '../Common/theme';
-import { ButtonMi } from '../Home/DeviceScreen';
+import { ButtonMi } from "../Home/ButtonMi";
 import { AppHeader, section_header_style } from '../Home/HomeScreen';
 
 

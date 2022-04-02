@@ -5,7 +5,7 @@ import { Animated, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar
 import ClientUtils, { Device, DeviceCompact } from '../../Services/ClientUtils';
 import SvgMi, { st } from '../Common/SvgMi';
 import { Palette } from '../Common/theme';
-import { ButtonMi } from '../Home/DeviceScreen';
+import { ButtonMi } from "../Home/ButtonMi";
 import { IconButtonMi } from "../Home/IconButtonMi";
 import { AppHeader, dummyDevices, section_header_style } from '../Home/HomeScreen';
 import DeviceDefinitionCard from './DeviceDefinitionCard';

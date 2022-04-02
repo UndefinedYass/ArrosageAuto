@@ -54,7 +54,7 @@ export default class ClientUtils {
     }={
         DevicesHeaders:[],
         Devices:[],
-        dhtLastResponse:{readings:{temp:-1,hum:-1},error:null}
+        dhtLastResponse:{readings:{temp:0,hum:0},error:null}
     }
 
 
@@ -291,7 +291,7 @@ export default class ClientUtils {
                 this.cache.dhtLastResponse.readings=respons.readings;
                 resolve  (respons)
             })
-            .catch(err=>{alert(err);reject(err)})
+            .catch(err=>{reject(err)})
         })
     }
 }

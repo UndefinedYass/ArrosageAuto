@@ -65,7 +65,7 @@ export default class DHTPanel extends Component<DHTPanel_props, DHTPanel_state>{
                 <View style={{alignItems:"center", flex:1,maxWidth:80}}>
                     <SvgMi style={{width:48}}  color={"#aa0033"} size={48} xmldata={st.deviceThermostat} />
                 </View> 
-                <DHTPanelKeyValue keyStr='Tempurature' value={this.props.temp.toString()} value_unit='°C'/>
+                <DHTPanelKeyValue keyStr='Temperature' value={this.props.temp.toString()} value_unit='°C'/>
                 {/*<View style={{height:"62%", width:1, backgroundColor:"#66666644"}} />
                 <DHTPanelKeyValue keyStr='Tempurature' value='25°C'/>*/ }
             </View>

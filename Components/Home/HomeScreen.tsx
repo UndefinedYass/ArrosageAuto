@@ -129,7 +129,7 @@ export default class HomeScreen extends Component<HomeScreen_props, HomeScreen_s
             isDeviceScreenOpen:false,
             currentDeviceScreenDevice_cmp:{ID:"",label:"",currentState:false,mode:"automated"},
             devicesCollectionCompact :ClientUtils.cache.DevicesHeaders,
-            currentHum:ClientUtils.cache.dhtLastResponse.readings.hum,
+            currentHum:ClientUtils.cache?.dhtLastResponse?.readings?.hum ,
             currentTemp:ClientUtils.cache.dhtLastResponse.readings.temp,
             currentDhtError:null,
 
@@ -140,7 +140,9 @@ export default class HomeScreen extends Component<HomeScreen_props, HomeScreen_s
         ClientUtils.GetDevicesHeaders(false).then(devicesComp=>this.setState({devicesCollectionCompact:devicesComp})).catch(err=>{
             ToastAndroid.show(`Couldn't connect to ${ClientUtils.Host}\n${err?.message}`,1000)
         });
-        ClientUtils.GetSensorsInfo().then(resp=>this.setState({currentHum:resp.readings.hum,currentTemp:resp.readings.temp,currentDhtError:resp.error})).catch(err=>{
+        ClientUtils.GetSensorsInfo()
+        .then(resp=>this.setState({currentHum:resp.readings.hum,currentTemp:resp.readings.temp,currentDhtError:resp.error}))
+        .catch(err=>{
             ToastAndroid.show(`Couldn't connect to ${ClientUtils.Host}\n${err?.message}`,1000)
         });
     }
