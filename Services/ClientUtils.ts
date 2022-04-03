@@ -20,7 +20,7 @@ export type ConditionType ="gt" | "lt"
 export type AutoOptions = {
     startsAt : Date
     duration : number
-    reapeatEvery : number
+    repeatEvery : number
     conditions : Conditon[]
 }
 export type Conditon = {

@@ -129,9 +129,11 @@ export default class DevicesScreen extends Component<DevicesScreen_props, Device
             let res = await ClientUtils.DeleteDevice(id)
             if(res){
                 deletedIDS=deletedIDS.concat([id])
+                
             }
             
         }
+        this.setState({currentSelection:[]})
         ToastAndroid.show(`Deleted ${deletedIDS.length} devices`,1000)
         
         //alert(`Deleted ${deletedIDS.length} devices`);

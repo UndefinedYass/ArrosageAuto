@@ -19,7 +19,7 @@ export const dummyDevices : Device[] = [
         autoOptions:{
             startsAt: new Date(Date.now()),
             duration:1*3600,
-            reapeatEvery: 24*3600,
+            repeatEvery: 24*3600,
             conditions: []
 
         }
@@ -31,7 +31,7 @@ export const dummyDevices : Device[] = [
         autoOptions:{
             startsAt: new Date(Date.now()),
             duration:1*3600,
-            reapeatEvery: 24*3600,
+            repeatEvery: 24*3600,
             conditions: []
 
         }
@@ -43,7 +43,7 @@ export const dummyDevices : Device[] = [
         autoOptions:{
             startsAt: new Date(Date.now()),
             duration:1*3600,
-            reapeatEvery: 24*3600,
+            repeatEvery: 24*3600,
             conditions: [
                 {type:"gt",
                 targetVar:"temp",

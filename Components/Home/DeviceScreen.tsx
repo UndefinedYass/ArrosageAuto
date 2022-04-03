@@ -443,7 +443,7 @@ export  class AutoOptionsSection extends Component<AutoOptionsSection_props, Aut
         this.state = {
             currConditions:props.AutoOptionsObj.conditions,
             currDuration: this.props.AutoOptionsObj.duration,
-            currRepeatEvery : props.AutoOptionsObj.reapeatEvery,
+            currRepeatEvery : props.AutoOptionsObj.repeatEvery,
             currentStartsAtDate : props.AutoOptionsObj.startsAt,
             dp_open:false,
             dp_initial_dur: {unit:"d",value:1},
@@ -458,7 +458,7 @@ export  class AutoOptionsSection extends Component<AutoOptionsSection_props, Aut
         let newOpts : AutoOptions = {
             startsAt:this.state.currentStartsAtDate,
             duration:this.state.currDuration,
-            reapeatEvery:this.state.currRepeatEvery,
+            repeatEvery:this.state.currRepeatEvery,
             conditions:this.state.currConditions,
         }
         return newOpts;
