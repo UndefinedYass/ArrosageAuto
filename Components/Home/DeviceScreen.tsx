@@ -719,7 +719,7 @@ export class TimeChip extends Component<TimeChip_props, TimeChip_state>{
 
 
 
-const days = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]
+const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
 const moths = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
 
 type DateChip_props = {
@@ -741,7 +741,7 @@ export class DateChip extends Component<DateChip_props, DateChip_state>{
         if(!dt) return"non";
         //console.log(dt);
        // return"ok";
-        return `${days[dt.getDay()-1]} ${dt.getDate()}/${dt.getMonth()}/${dt.getFullYear()}`
+        return `${days[dt.getDay()]} ${dt.getDate()}/${dt.getMonth()}/${dt.getFullYear()}`
     }
     render() {
         return (
