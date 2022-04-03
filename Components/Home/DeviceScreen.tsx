@@ -741,7 +741,7 @@ export class DateChip extends Component<DateChip_props, DateChip_state>{
         if(!dt) return"non";
         //console.log(dt);
        // return"ok";
-        return `${days[dt.getDay()]} ${dt.getDate()}/${dt.getMonth()}/${dt.getFullYear()}`
+        return `${days[dt.getDay()]} ${dt.getDate()}/${dt.getMonth()+1}/${dt.getFullYear()}`
     }
     render() {
         return (
