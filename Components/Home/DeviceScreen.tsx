@@ -518,8 +518,10 @@ export  class AutoOptionsSection extends Component<AutoOptionsSection_props, Aut
                   style={{marginTop:6}}
                  >
                     
-                     <Text style={text_option_key_style} >Start at</Text>
-                     <View style={{flexDirection:'row',marginBottom:4, justifyContent:"space-evenly",alignItems:"center"}} >
+                     {false&&<Text style={text_option_key_style} >Start at</Text>}
+                     {false&&<View style={{flexDirection:'row',marginBottom:4, justifyContent:"space-evenly",alignItems:"center"}} >
+                     
+                     
                      <TimeChip datetime={this.state.currentStartsAtDate} onClick={()=>{
                          DateTimePickerAndroid.open({mode: "time",
                             style:{backgroundColor:Palette.primary_2}, 
@@ -556,13 +558,37 @@ export  class AutoOptionsSection extends Component<AutoOptionsSection_props, Aut
                         });
                      }} />
 
-                     </View>
+                     </View>}
+
+                     <View style={{flexDirection:"row", paddingHorizontal:6,
+                  justifyContent:"space-between",marginVertical:6}}>
+                    <ValueKeyPressable key_icon={st.accessTime} value_textStyle={{fontSize:18}} wrapperStyle={{marginRight:14}}
+                     unit='' valueUnitArray={["5:30 AM"]} 
+                    value='5:30 AM' title='Time' onClick={()=>{ 
+                        this.openDurationPickerMi( durationAsDTypeMi, (res)=>{
+                            if(res===null) return;
+                            this.setState({currDuration:DurationTypeMiToSeconds(res)})
+                        })
+  
+                    }}></ValueKeyPressable>
+                    <ValueKeyPressable key_icon={st.scheduleMi} unit='' value_textStyle={{fontSize:18}} valueUnitArray={["Sat 2/4/2022"]} 
+                    value='152,4' title='Date' onClick={()=>{ 
+                        this.openDurationPickerMi(repeatEveryAsDTypeMi,(res)=>{
+                            if(res===null) return;
+                            this.setState({currRepeatEvery:DurationTypeMiToSeconds(res)})
+                        })
+  
+                    }}></ValueKeyPressable>
+
+
+                 </View>
                      
 
                  </View>
                  <Hoz/>
-                 <View style={{flexDirection:"row", justifyContent:"space-between",marginTop:6}}>
-                    <ValueKeyPressable wrapperStyle={{marginRight:14}} unit='' valueUnitArray={["1","h","30","m"]} 
+                 <View style={{flexDirection:"row", paddingHorizontal:6,
+                  justifyContent:"space-between",marginVertical:6}}>
+                    <ValueKeyPressable key_icon={st.timelapse} wrapperStyle={{marginRight:14}} unit='' valueUnitArray={["1","h","30","m"]} 
                     value='1h:30m' title='Duration' onClick={()=>{ 
                         this.openDurationPickerMi( durationAsDTypeMi, (res)=>{
                             if(res===null) return;
@@ -570,8 +596,8 @@ export  class AutoOptionsSection extends Component<AutoOptionsSection_props, Aut
                         })
   
                     }}></ValueKeyPressable>
-                    <ValueKeyPressable unit='Day' valueUnitArray={["1","Day"]} 
-                    value='152,4' title='Repeat' onClick={()=>{ 
+                    <ValueKeyPressable key_icon={st.autoRenew} unit='Day' valueUnitArray={["1","Day"]} 
+                    value='152,4' title='Repeat every' onClick={()=>{ 
                         this.openDurationPickerMi(repeatEveryAsDTypeMi,(res)=>{
                             if(res===null) return;
                             this.setState({currRepeatEvery:DurationTypeMiToSeconds(res)})
@@ -770,6 +796,29 @@ export class DateChip extends Component<DateChip_props, DateChip_state>{
 
 
 
+//ATTEMPT at unifying the styles from Chip and KVP, keeping the chip/card look
+const chipWraper_KVP : StyleProp<ViewStyle> = {
+    elevation:2,
+     borderRadius:6, height:64, 
+     marginVertical:2, 
+     alignContent:"center",
+     justifyContent:"center",
+     alignItems:"center",
+marginHorizontal:2, 
+backgroundColor:"#e0f5e8",
+alignSelf:"flex-start",
+
+}
+
+const chipWraper_inner_KVP : StyleProp<ViewStyle> = {
+    flexDirection:"row",
+    alignItems:"center", 
+justifyContent:"center",
+paddingHorizontal:6, paddingLeft:6,
+ paddingVertical:4,
+}
+
+
 const VKP_wrapper_default_style: StyleProp<ViewStyle>={
     flexDirection:"column",
     alignItems:"flex-start",
@@ -799,15 +848,18 @@ const VKP_unit_default_style: StyleProp<TextStyle>={
     marginLeft:4,
     marginBottom:2,
     includeFontPadding:true,
+    
 }
 
 type ValueKeyPressable_props = {
     title:string
+    key_icon?:string
     valueUnitArray:string[]
     value:string
     unit:string
     onClick:()=>void
     wrapperStyle?:StyleProp<ViewStyle>
+    value_textStyle?:StyleProp<TextStyle>
 
 }
 type ValueKeyPressable_state = {
@@ -823,15 +875,19 @@ export class ValueKeyPressable extends Component<ValueKeyPressable_props, ValueK
     }
     render() {
         return (
-            <Pressable style={[VKP_wrapper_default_style,this.props.wrapperStyle]} android_ripple={{ radius: 200, color: "#aaaaaa" }}
+            <Pressable style={[VKP_wrapper_default_style,chipWraper_KVP, this.props.wrapperStyle]} android_ripple={{ radius: 200, color: "#aaaaaa" }}
                 onPress={this.props.onClick}
             >
-                <View>
+                <View style={{flexDirection:"row"}}>
+                    {this.props.key_icon&&<SvgMi xmldata={this.props.key_icon} 
+                    color={Palette.inkDarkGrey} size={16} style={{
+                        marginRight: 6, borderRadius: 100, height: 16, width: 16,
+                    }} ></SvgMi>}
                     <Text style={VKP_key_default_style}  >{this.props.title}</Text>
                 </View>
-                <View style={{flexDirection:"row",alignItems:"flex-end",}}>
+                <View style={{flexDirection:"row", flex:1,alignItems:"flex-end",}}>
                     {this.props.valueUnitArray.map((s,ix)=>(
-                    <Text style={(ix%2)==0?VKP_value_default_style:VKP_unit_default_style}>
+                    <Text key={ix} style={(ix%2)==0?[VKP_value_default_style,this.props.value_textStyle]:VKP_unit_default_style}>
                         {s}
                     </Text>
                     ))}
