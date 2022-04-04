@@ -126,6 +126,10 @@ export default class DeviceScreen extends Component<DeviceScreen_props, DeviceSc
         return (
 
             <View style={deviceScreen_style} >
+                <View style={{borderRadius:0,backgroundColor:Palette.lightsOutBlack,height:122,
+                borderTopEndRadius:0,borderTopStartRadius:0,position:'absolute',width:"100%"}}>
+
+                </View>
                 { <DeviceHeader onOptionsClick={this.handleOptionsClick} 
                 onBackClick={this.props.onBack}
                 title={this.props.deviceLabel} deviceState={this.props.deviceState} />
@@ -237,11 +241,11 @@ export  class DeviceHeader extends Component<DeviceHeader_props, DeviceHeader_st
                 onClick={this.props.onBackClick}
                 underlayColor={'#32323230'}
                 hitSlop={{bottom:16,top:16,left:16,right:36}}
-                color='black' innerSvgMiData={st.chevron_left} innerSvgMiSize={24}
+                color='white' innerSvgMiData={st.chevron_left} innerSvgMiSize={24}
                 wrapperStyle={{backgroundColor:'transparent', width:32,height:32, borderRadius:100}}
                 />
                 <View style={{flexDirection:"row", alignItems:"center", height:40,flexShrink:1 }}>
-                <Text  numberOfLines={1} ellipsizeMode="tail"  style={{color:"black", flexShrink:1, marginRight:6,fontSize:16}}  > {this.props.title}</Text>
+                <Text  numberOfLines={1} ellipsizeMode="tail"  style={{color:"white", flexShrink:1, marginRight:6,fontSize:16}}  > {this.props.title}</Text>
 {                false&&<DeviceState state={this.props.deviceState} overrideStyle={{alignSelf:"center"}} ></DeviceState>
 }
                 </View> 
@@ -250,7 +254,7 @@ export  class DeviceHeader extends Component<DeviceHeader_props, DeviceHeader_st
                 onClick={this.props.onOptionsClick}
                 underlayColor={'#32323230'}
                 hitSlop={{bottom:16,top:16,left:36,right:16}}
-                color='black' innerSvgMiData={st.more_horiz} innerSvgMiSize={24}
+                color='white' innerSvgMiData={st.more_horiz} innerSvgMiSize={24}
                 wrapperStyle={{backgroundColor:'transparent', width:32,height:32, borderRadius:100}}
                 />
                
@@ -284,17 +288,22 @@ export  class DeviceInfoSection extends Component<DeviceInfoSection_props, Devic
     }
     render() {
         return (
-            <View style={{flexDirection:"column",alignSelf:"stretch", marginHorizontal:6, marginVertical:10, padding:8, alignItems:'flex-start',backgroundColor:Palette.whitePanel, borderRadius:16,}} >
-               <View style={{height:32,  flexDirection:"row", alignItems:"center", justifyContent:"flex-start"}} >
-                   <Text style={{fontSize:14}} >Pin</Text>
-                   <Text style={{fontSize:14, fontWeight:"bold", marginLeft:8}} >{this.props.devicePin}</Text>
-               </View>
-               <View style={{height:32, flexDirection:"row", alignItems:"center", justifyContent:"flex-start"}} >
+            <View style={{flexDirection:"column",alignSelf:"stretch", marginHorizontal:10,
+            marginVertical:10, overflow:"hidden", paddingTop:8, paddingBottom:0, 
+            alignItems:'flex-start',
+            backgroundColor:Palette.whitePanel, elevation:2, zIndex:50, borderRadius:16,}} >
+                <View style={{height:32, marginHorizontal:8,  flexDirection:"row", alignItems:"center", justifyContent:"flex-start"}} >
+                   <SvgMi color='black' size={24} xmldata={st.memory} ></SvgMi>
+                   <Text style={{fontSize:14, fontWeight:"bold", marginLeft:8}} >{"GPIO"}{this.props.devicePin}</Text>
+                </View>
+                <View style={{height:32,  marginHorizontal:8,  flexDirection:"row", alignItems:"center", justifyContent:"flex-start"}} >
                    <Text  style={{fontSize:14}} >Label</Text>
                    <Text numberOfLines={2} ellipsizeMode="tail" style={{fontSize:14, fontWeight:"bold", marginLeft:8,flexShrink:1}} >{this.props.deviceLabel}</Text>
                </View>
-               <View style={{height:32, flexDirection:"row", alignItems:"center", justifyContent:"flex-start"}} >
-                   <Text style={{fontSize:14}} >Status</Text>
+               {false&&<View style={{height:1,width:"90%",backgroundColor:"#aaa", alignSelf:"center"}} ></View>}
+               <View style={{height:32, marginBottom:8, alignSelf:"stretch",  paddingHorizontal:8,
+                 overflow:"hidden", flexDirection:"row", backgroundColor:"#35756400", alignItems:"center", justifyContent:"flex-start"}} >
+                   <Text style={{fontSize:14}} >State</Text>
                    <DeviceState state={this.props.deviceState} overrideStyle={{alignSelf:"center", marginLeft:6}} ></DeviceState>
 
                </View>
@@ -304,7 +313,7 @@ export  class DeviceInfoSection extends Component<DeviceInfoSection_props, Devic
     }
 }
 
-
+const coolColor = "#45988710"
 
 const ChipsPanel_wrapper_style : StyleProp<ViewStyle> = {
     flexDirection:"row",
@@ -409,8 +418,8 @@ const text_options_group_style: StyleProp<TextStyle>={
 
 }
 const text_option_key_style: StyleProp<TextStyle>={
-    color:"#2c2c2c",
-    fontSize:14,
+    color:"#666666",
+    fontSize:13,
     fontWeight:"500",
     marginLeft:10, marginVertical:4,
 
@@ -506,7 +515,7 @@ export  class AutoOptionsSection extends Component<AutoOptionsSection_props, Aut
                 <Text style={text_options_group_style} >Automation options:</Text>
                  <View /*android_ripple={{radius:200,color:"#aaaaaa"}}*/
                   
-
+                  style={{marginTop:6}}
                  >
                     
                      <Text style={text_option_key_style} >Start at</Text>
@@ -552,37 +561,32 @@ export  class AutoOptionsSection extends Component<AutoOptionsSection_props, Aut
 
                  </View>
                  <Hoz/>
-                 <Pressable android_ripple={{radius:200,color:"#aaaaaa"}}
-                  onPress={()=>{ 
-                      this.openDurationPickerMi( durationAsDTypeMi, (res)=>{
-                          if(res===null) return;
-                          this.setState({currDuration:DurationTypeMiToSeconds(res)})
-                      })
+                 <View style={{flexDirection:"row", justifyContent:"space-between",marginTop:6}}>
+                    <ValueKeyPressable wrapperStyle={{marginRight:14}} unit='' valueUnitArray={["1","h","30","m"]} 
+                    value='1h:30m' title='Duration' onClick={()=>{ 
+                        this.openDurationPickerMi( durationAsDTypeMi, (res)=>{
+                            if(res===null) return;
+                            this.setState({currDuration:DurationTypeMiToSeconds(res)})
+                        })
+  
+                    }}></ValueKeyPressable>
+                    <ValueKeyPressable unit='Day' valueUnitArray={["1","Day"]} 
+                    value='152,4' title='Repeat' onClick={()=>{ 
+                        this.openDurationPickerMi(repeatEveryAsDTypeMi,(res)=>{
+                            if(res===null) return;
+                            this.setState({currRepeatEvery:DurationTypeMiToSeconds(res)})
+                        })
+  
+                    }}></ValueKeyPressable>
 
-                  }} 
 
-                 >
-                     
-
-                     <Text style={text_option_key_style}  >Duration</Text>
-                     <Text style={text_option_value_style}>{DurationTypeMiToString(durationAsDTypeMi)}</Text>
-                </Pressable>
+                 </View>
+                 
+                
+                 
+                 
                  <Hoz/>
-                 <Pressable android_ripple={{radius:200,color:"#aaaaaa"}}
-                  onPress={()=>{ 
-                      this.openDurationPickerMi(repeatEveryAsDTypeMi,(res)=>{
-                          if(res===null) return;
-                          this.setState({currRepeatEvery:DurationTypeMiToSeconds(res)})
-                      })
-
-                  }} 
-
-                 >
-                     <Text style={text_option_key_style} >Repeat every</Text>
-                     <Text style={text_option_value_style} >{DurationTypeMiToString(repeatEveryAsDTypeMi)}</Text>
-                </Pressable>
-                 <Hoz/>
-                 <View>
+                 <View style={{marginTop:6}}>
                      <Text style={text_option_key_style} >Conditions</Text>
                      <ConditionsEditor onRemove={(c)=>{
                          this.setState(old=>({
@@ -590,7 +594,7 @@ export  class AutoOptionsSection extends Component<AutoOptionsSection_props, Aut
                              
                              }))}} onAddClick={(()=>{this.setState({conditionForm_open:true})}).bind(this)} Conditions={this.state.currConditions} />
                  </View>
-                 <Hoz/>
+                 
             </View>
         )
     }
@@ -600,7 +604,7 @@ export  class AutoOptionsSection extends Component<AutoOptionsSection_props, Aut
 
 function Hoz(){
     return (
-    <View style={{width:"100%",height:1,backgroundColor:"#c9c9c9", marginVertical:0,}} ></View>
+    <View style={{width:"80%", alignSelf:"center", height:1,backgroundColor:"#c9c9c9", marginVertical:0,}} ></View>
     )
 }
 
@@ -759,6 +763,85 @@ export class DateChip extends Component<DateChip_props, DateChip_state>{
                 </View>
 
             </TouchableHighlight>
+        )
+    }
+}
+
+
+
+
+const VKP_wrapper_default_style: StyleProp<ViewStyle>={
+    flexDirection:"column",
+    alignItems:"flex-start",
+    padding:8,
+    flex:1
+
+
+}
+
+const VKP_key_default_style: StyleProp<TextStyle>={
+    fontSize:12,
+    color:"#888888",
+
+}
+const VKP_value_default_style: StyleProp<TextStyle>={
+    fontSize:28,
+    color:Palette.lightsOutBlack,
+    fontFamily:"Roboto",
+    fontWeight:"100",
+    includeFontPadding:false,
+
+    
+}
+const VKP_unit_default_style: StyleProp<TextStyle>={
+    fontSize:14,
+    color:"#888888",
+    marginLeft:4,
+    marginBottom:2,
+    includeFontPadding:true,
+}
+
+type ValueKeyPressable_props = {
+    title:string
+    valueUnitArray:string[]
+    value:string
+    unit:string
+    onClick:()=>void
+    wrapperStyle?:StyleProp<ViewStyle>
+
+}
+type ValueKeyPressable_state = {
+}
+/**
+ * the new created alternative in autoOptionsStyle2 (03-april-2022)
+ */
+export class ValueKeyPressable extends Component<ValueKeyPressable_props, ValueKeyPressable_state>{
+    constructor(props:Readonly<ValueKeyPressable_props>) {
+        super(props)
+        this.state = {
+        }
+    }
+    render() {
+        return (
+            <Pressable style={[VKP_wrapper_default_style,this.props.wrapperStyle]} android_ripple={{ radius: 200, color: "#aaaaaa" }}
+                onPress={this.props.onClick}
+            >
+                <View>
+                    <Text style={VKP_key_default_style}  >{this.props.title}</Text>
+                </View>
+                <View style={{flexDirection:"row",alignItems:"flex-end",}}>
+                    {this.props.valueUnitArray.map((s,ix)=>(
+                    <Text style={(ix%2)==0?VKP_value_default_style:VKP_unit_default_style}>
+                        {s}
+                    </Text>
+                    ))}
+                    
+
+
+                </View>
+
+
+            </Pressable>
         )
     }
 }
