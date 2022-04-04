@@ -563,21 +563,45 @@ export  class AutoOptionsSection extends Component<AutoOptionsSection_props, Aut
                      <View style={{flexDirection:"row", paddingHorizontal:6,
                   justifyContent:"space-between",marginVertical:6}}>
                     <ValueKeyPressable key_icon={st.accessTime} value_textStyle={{fontSize:22}} wrapperStyle={{marginRight:14}}
-                     unit='' valueUnitArray={["5:30","AM"]} 
-                    value='5:30 AM' title='Start time' onClick={()=>{ 
-                        this.openDurationPickerMi( durationAsDTypeMi, (res)=>{
-                            if(res===null) return;
-                            this.setState({currDuration:DurationTypeMiToSeconds(res)})
-                        })
-  
+                     unit='' valueUnitArray={TimeChip.formatTime2(this.state.currentStartsAtDate)} 
+                    value='5:30 AM' title='Start time' onClick={()=>{
+                        DateTimePickerAndroid.open({mode: "time",
+                           style:{backgroundColor:Palette.primary_2}, 
+                           
+                           value:this.state.currentStartsAtDate?this.state.currentStartsAtDate: new Date(Date.now()),
+                           onChange:((e,date)=>{
+                               if(!date)return;
+                               this.setState(old=>{
+                                   let originDT = old.currentStartsAtDate?old.currentStartsAtDate: new Date(Date.now())
+                                   let newDT = new Date(Date.UTC(originDT.getUTCFullYear(),
+                                   originDT.getUTCMonth(), originDT.getUTCDate(),date.getUTCHours(),
+                                   date.getUTCMinutes()));
+                                   
+                                   return ({currentStartsAtDate:newDT});
+                               }) 
+                           ;})
+                       });
                     }}></ValueKeyPressable>
-                    <ValueKeyPressable key_icon={st.scheduleMi} unit='' value_textStyle={{fontSize:18}} valueUnitArray={["Sat 2/4/2022"]} 
-                    value='152,4' title='Date' onClick={()=>{ 
-                        this.openDurationPickerMi(repeatEveryAsDTypeMi,(res)=>{
-                            if(res===null) return;
-                            this.setState({currRepeatEvery:DurationTypeMiToSeconds(res)})
-                        })
-  
+                    <ValueKeyPressable key_icon={st.scheduleMi} unit='' 
+                    value_textStyle={{fontSize:17}} 
+                    valueUnitArray={[DateChip.formatDate2(this.state.currentStartsAtDate)]} 
+                    value='152,4'
+                     title='Date' onClick={()=>{
+                        DateTimePickerAndroid.open({mode: "date",
+                           style:{backgroundColor:Palette.primary_2}, 
+                           value: this.state.currentStartsAtDate?this.state.currentStartsAtDate: new Date(Date.now()),
+                           onChange:((e,date)=>{
+                               if(!date)return;
+                               this.setState(old=>{
+                                   let originDT = old.currentStartsAtDate?old.currentStartsAtDate: new Date(Date.now())
+                                   let newDT = new Date(Date.UTC(date.getUTCFullYear(),
+                                   date.getUTCMonth(), date.getUTCDate(),originDT.getUTCHours(),
+                                   originDT.getUTCMinutes()));
+                                   
+                                   return ({currentStartsAtDate:newDT});
+                               }) 
+                           ;})
+                       });
                     }}></ValueKeyPressable>
 
 
@@ -707,7 +731,7 @@ export class TimeChip extends Component<TimeChip_props, TimeChip_state>{
         this.state = {
         }
     }
-    twoDigits(n:number){
+    static twoDigits(n:number){
         return n<10?("0"+n):(""+n)
     }
     formatTime(dt:Date):string{
@@ -719,9 +743,17 @@ export class TimeChip extends Component<TimeChip_props, TimeChip_state>{
         let s= "AM"
         if(h>=12){ h= h-12; s="PM"}
         if(h==0 ) h=12;
-        return `${h}:${this.twoDigits(dt.getMinutes())} ${s}`
-
-
+        return `${h}:${TimeChip.twoDigits(dt.getMinutes())} ${s}`
+    }
+    //used by KVP, returns array of values and units
+    static formatTime2(dt:Date):string[]{
+        if(!dt) return["non"];
+                //return"ok";
+        let h = Math.floor(dt.getHours());
+        let s= "AM"
+        if(h>=12){ h= h-12; s="PM"}
+        if(h==0 ) h=12;
+        return [ `${h}:${TimeChip.twoDigits(dt.getMinutes())}`,s];
     }
     render() {
         return (
@@ -768,6 +800,13 @@ export class DateChip extends Component<DateChip_props, DateChip_state>{
         }
     }
     formatDate(dt:Date):string{
+        if(!dt) return"non";
+        //console.log(dt);
+       // return"ok";
+        return `${days[dt.getDay()]} ${dt.getDate()}/${dt.getMonth()+1}/${dt.getFullYear()}`
+    }
+    //used externally
+    static formatDate2(dt:Date):string{
         if(!dt) return"non";
         //console.log(dt);
        // return"ok";
@@ -845,8 +884,8 @@ const VKP_key_default_style: StyleProp<TextStyle>={
 const VKP_value_default_style: StyleProp<TextStyle>={
     fontSize:22,
     color: bold_green_text ,//"#508823",
-    fontFamily:"Comfortaa-Bold",
-    //fontWeight:"600",
+    //fontFamily:"ABeeZee-Regular",
+    fontWeight:"600",
     includeFontPadding:false,
 
     
