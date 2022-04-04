@@ -7,6 +7,7 @@ import React, { Component, createRef, RefObject } from 'react';
 import { Animated, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar, TextInput, FlatList, Image, Modal, Switch, AsyncStorage, Alert, AlertButton, ProgressBarAndroid, ColorPropType, VirtualizedList, Picker, Dimensions, ViewStyle, StyleProp, TextStyle, TouchableHighlight, DatePickerAndroid, Insets, ScrollView, Pressable, TouchableWithoutFeedback } from 'react-native';
 import DatePicker from 'react-native-date-picker';
 import ClientUtils, { AutoOptions, Conditon, ConfigMode, DeviceConfig } from '../../Services/ClientUtils';
+import { FormatDuration } from '../../Services/Common/Utils';
 import { ConditionCreateDlg, DurationTypeMi, DurationTypeMiFromSeconds, DurationTypeMiToSeconds, DurationTypeMiToString, GPDurationPickerMi } from '../Common/GPDurationPickerMi';
 import SvgMi, { st } from '../Common/SvgMi';
 import { Palette } from '../Common/theme';
@@ -612,7 +613,9 @@ export  class AutoOptionsSection extends Component<AutoOptionsSection_props, Aut
                  <Hoz/>
                  <View style={{flexDirection:"row", paddingHorizontal:6,
                   justifyContent:"space-between",marginVertical:6}}>
-                    <ValueKeyPressable key_icon={st.timelapse} wrapperStyle={{marginRight:14}} unit='' valueUnitArray={["1","h","30","m"]} 
+                    <ValueKeyPressable key_icon={st.timelapse} 
+                    wrapperStyle={{marginRight:14}} unit=''
+                     valueUnitArray={FormatDuration(this.state.currDuration)} 
                     value='1h:30m' title='Duration' onClick={()=>{ 
                         this.openDurationPickerMi( durationAsDTypeMi, (res)=>{
                             if(res===null) return;
@@ -620,7 +623,8 @@ export  class AutoOptionsSection extends Component<AutoOptionsSection_props, Aut
                         })
   
                     }}></ValueKeyPressable>
-                    <ValueKeyPressable key_icon={st.autoRenew} unit='Day' valueUnitArray={["1","Day"]} 
+                    <ValueKeyPressable key_icon={st.autoRenew} unit='Day'
+                     valueUnitArray={FormatDuration(this.state.currRepeatEvery)} 
                     value='152,4' title='Repeat every' onClick={()=>{ 
                         this.openDurationPickerMi(repeatEveryAsDTypeMi,(res)=>{
                             if(res===null) return;
