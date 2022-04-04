@@ -564,7 +564,7 @@ export  class AutoOptionsSection extends Component<AutoOptionsSection_props, Aut
                   justifyContent:"space-between",marginVertical:6}}>
                     <ValueKeyPressable key_icon={st.accessTime} value_textStyle={{fontSize:22}} wrapperStyle={{marginRight:14}}
                      unit='' valueUnitArray={["5:30","AM"]} 
-                    value='5:30 AM' title='Time' onClick={()=>{ 
+                    value='5:30 AM' title='Start time' onClick={()=>{ 
                         this.openDurationPickerMi( durationAsDTypeMi, (res)=>{
                             if(res===null) return;
                             this.setState({currDuration:DurationTypeMiToSeconds(res)})
@@ -613,7 +613,7 @@ export  class AutoOptionsSection extends Component<AutoOptionsSection_props, Aut
                  
                  <Hoz/>
                  <View style={{marginTop:6}}>
-                     <Text style={text_option_key_style} >Conditions</Text>
+                     <Text style={text_option_key_style} >Rules</Text>
                      <ConditionsEditor onRemove={(c)=>{
                          this.setState(old=>({
                              currConditions:old.currConditions.filter(it=>(!((it.targetVar==c.targetVar)&&(it.type==c.type))))
@@ -795,17 +795,20 @@ export class DateChip extends Component<DateChip_props, DateChip_state>{
 
 
 
-const bold_green_text = "#202725"
+const bold_green_text = Palette.inkDarkGrey
+const bold_green_text_4 = "#202725"
 const bold_green_text_2 = "#0d541f"
-const light_green_text = "#20272590";
+const light_green_text = "#666666";
+const light_green_text_4 = "#20272590";
 const light_green_text_2 = "#50882390";
 const light_green_bg = "#dfe7e2";
 const light_green_bg_2 = "#dfe7e2";
 const light_green_bg_1 = "ebedea";
 //ATTEMPT at unifying the styles from Chip and KVP, keeping the chip/card look
 const chipWraper_KVP : StyleProp<ViewStyle> = {
-    elevation:3,
-     borderRadius:6, height:64, 
+    elevation:1,
+     borderRadius:100, height:64, 
+     overflow:"hidden",
      marginVertical:2, 
      alignContent:"center",
      justifyContent:"center",
@@ -842,8 +845,8 @@ const VKP_key_default_style: StyleProp<TextStyle>={
 const VKP_value_default_style: StyleProp<TextStyle>={
     fontSize:22,
     color: bold_green_text ,//"#508823",
-    fontFamily:"Roboto",
-    fontWeight:"100",
+    fontFamily:"Comfortaa-Bold",
+    //fontWeight:"600",
     includeFontPadding:false,
 
     
@@ -851,7 +854,7 @@ const VKP_value_default_style: StyleProp<TextStyle>={
 const VKP_unit_default_style: StyleProp<TextStyle>={
     fontSize:14,
     color:light_green_text,
-    marginLeft:4,
+    marginHorizontal:2,
     marginBottom:2,
     includeFontPadding:true,
     
@@ -881,17 +884,17 @@ export class ValueKeyPressable extends Component<ValueKeyPressable_props, ValueK
     }
     render() {
         return (
-            <Pressable style={[VKP_wrapper_default_style,chipWraper_KVP, this.props.wrapperStyle]} android_ripple={{ radius: 200, color: "#aaaaaa" }}
+            <Pressable  style={[VKP_wrapper_default_style,chipWraper_KVP, this.props.wrapperStyle]} android_ripple={{ radius: 200, color: "#aaaaaa" }}
                 onPress={this.props.onClick}
             >
-                <View style={{flexDirection:"row",alignSelf:"flex-start"}}>
+                <View style={{flexDirection:"row",alignSelf:"center"}}>
                     {this.props.key_icon&&<SvgMi xmldata={this.props.key_icon} 
                     color={light_green_text} size={16} style={{
                         marginRight: 6, borderRadius: 100, height: 16, width: 16,
                     }} ></SvgMi>}
                     <Text style={VKP_key_default_style}  >{this.props.title}</Text>
                 </View>
-                <View style={{flexDirection:"row", alignSelf:"flex-start", flex:1,alignItems:"flex-end",}}>
+                <View style={{flexDirection:"row", alignSelf:"center", flex:1,alignItems:"flex-end",}}>
                     {this.props.valueUnitArray.map((s,ix)=>(
                     <Text key={ix} style={(ix%2)==0?[VKP_value_default_style,this.props.value_textStyle]:VKP_unit_default_style}>
                         {s}
