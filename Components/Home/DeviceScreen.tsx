@@ -6,6 +6,7 @@ import DateTimePicker, {DateTimePickerAndroid} from '@react-native-community/dat
 import React, { Component, createRef, RefObject } from 'react';
 import { Animated, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar, TextInput, FlatList, Image, Modal, Switch, AsyncStorage, Alert, AlertButton, ProgressBarAndroid, ColorPropType, VirtualizedList, Picker, Dimensions, ViewStyle, StyleProp, TextStyle, TouchableHighlight, DatePickerAndroid, Insets, ScrollView, Pressable, TouchableWithoutFeedback } from 'react-native';
 import DatePicker from 'react-native-date-picker';
+import Svg, { Path, SvgXml } from 'react-native-svg';
 import ClientUtils, { AutoOptions, Conditon, ConfigMode, DeviceConfig } from '../../Services/ClientUtils';
 import { FormatDuration } from '../../Services/Common/Utils';
 import { ConditionCreateDlg, DurationTypeMi, DurationTypeMiFromSeconds, DurationTypeMiToSeconds, DurationTypeMiToString, GPDurationPickerMi } from '../Common/GPDurationPickerMi';
@@ -127,10 +128,10 @@ export default class DeviceScreen extends Component<DeviceScreen_props, DeviceSc
         return (
 
             <View style={deviceScreen_style} >
-                <View style={{borderRadius:0,backgroundColor:Palette.lightsOutBlack,height:122,
+                <View style={{borderRadius:0,backgroundColor:Palette.lightsOutBlack,height:112,
                 borderTopEndRadius:0,borderTopStartRadius:0,position:'absolute',width:"100%"}}>
-
                 </View>
+                
                 { <DeviceHeader onOptionsClick={this.handleOptionsClick} 
                 onBackClick={this.props.onBack}
                 title={this.props.deviceLabel} deviceState={this.props.deviceState} />
@@ -289,25 +290,51 @@ export  class DeviceInfoSection extends Component<DeviceInfoSection_props, Devic
     }
     render() {
         return (
-            <View style={{flexDirection:"column",alignSelf:"stretch", marginHorizontal:10,
-            marginVertical:10, overflow:"hidden", paddingTop:8, paddingBottom:0, 
-            alignItems:'flex-start',
+            <View style={{flexDirection:"row",alignSelf:"stretch",
+             marginHorizontal:10,
+             maxHeight:90,
+             minHeight:90,
+            marginVertical:10, overflow:"hidden", paddingTop:4,
+             paddingBottom:4, 
+            alignItems:'center',
             backgroundColor:Palette.whitePanel, elevation:2, zIndex:50, borderRadius:16,}} >
-                <View style={{height:32, marginHorizontal:8,  flexDirection:"row", alignItems:"center", justifyContent:"flex-start"}} >
-                   <SvgMi color='black' size={24} xmldata={st.memory} ></SvgMi>
-                   <Text style={{fontSize:14, fontWeight:"bold", marginLeft:8}} >{"GPIO"}{this.props.devicePin}</Text>
-                </View>
-                <View style={{height:32,  marginHorizontal:8,  flexDirection:"row", alignItems:"center", justifyContent:"flex-start"}} >
-                   <Text  style={{fontSize:14}} >Label</Text>
-                   <Text numberOfLines={2} ellipsizeMode="tail" style={{fontSize:14, fontWeight:"bold", marginLeft:8,flexShrink:1}} >{this.props.deviceLabel}</Text>
-               </View>
-               {false&&<View style={{height:1,width:"90%",backgroundColor:"#aaa", alignSelf:"center"}} ></View>}
-               <View style={{height:32, marginBottom:8, alignSelf:"stretch",  paddingHorizontal:8,
-                 overflow:"hidden", flexDirection:"row", backgroundColor:"#35756400", alignItems:"center", justifyContent:"flex-start"}} >
-                   <Text style={{fontSize:14}} >State</Text>
-                   <DeviceState state={this.props.deviceState} overrideStyle={{alignSelf:"center", marginLeft:6}} ></DeviceState>
+                 <View style={{borderRadius:100,height:48, marginLeft:10,marginRight:0,
+                 backgroundColor:"#dfe7e2",
+                  width:48,alignItems:"center",justifyContent:"center"}}>
+                <SvgMi xmldata={st.plant1Mi}  size={32} 
+                color='#397947' style={{}} ></SvgMi>
 
-               </View>
+                </View>
+                <View style={{flex:1}} >
+                    <View style={{
+                        height: 32, marginHorizontal: 8,
+                        flexDirection: "row", alignItems: "center", flex: 1,
+                        //backgroundColor:"yellow",
+                        justifyContent: "space-evenly"
+                    }} >
+                       
+                        <Text numberOfLines={2} ellipsizeMode="tail" style={{ fontSize: 14, fontWeight: "bold", marginLeft: 8, flexShrink: 1 }} >{this.props.deviceLabel}</Text>
+                        {true && <Text style={{ fontSize: 14 }} >|</Text>}
+                        <View style={{ height: 32, marginHorizontal: 8, flexDirection: "row", alignItems: "center", justifyContent: "flex-start" }} >
+                            <SvgMi color='black' size={18} xmldata={st.memory} ></SvgMi>
+                            <Text style={{ fontSize: 14, fontWeight: "bold", marginLeft: 4 }} >{"GPIO"}{this.props.devicePin}</Text>
+                        </View>
+
+                       
+                            {true && <Text style={{ fontSize: 14 }} >|</Text>}
+                            <DeviceState state={this.props.deviceState} overrideStyle={{ alignSelf:"center",  marginLeft: 6 }} ></DeviceState>
+
+
+                    </View>
+
+
+
+
+
+
+                </View>
+              
+                
                
             </View>
         )
@@ -438,6 +465,7 @@ type AutoOptionsSection_props = {
 type AutoOptionsSection_state = {
     currentStartsAtDate : Date,
     currDuration : number,
+    /**seconds */
     currRepeatEvery : number,
     currConditions: Conditon [],
     dp_open:boolean

@@ -4,6 +4,7 @@
 import React, { Component, createRef } from 'react';
 import { Animated, TouchableHighlight, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar, TextInput, FlatList, Image, Modal, Switch, AsyncStorage, Alert, AlertButton, ProgressBarAndroid, ColorPropType, VirtualizedList, Picker, Dimensions, ViewStyle, StyleProp, TextStyle } from 'react-native';
 import ClientUtils, { ConfigMode, DeviceConfig } from '../../Services/ClientUtils';
+import { FormatDuration, p_diff } from '../../Services/Common/Utils';
 import SvgMi, { st } from '../Common/SvgMi';
 import { Palette } from '../Common/theme';
 import { ButtonMi } from "./ButtonMi";
@@ -55,7 +56,8 @@ type DeviceCard_props = {
 }
 type DeviceCard_state = {
 
-
+    nextActionNotice?:string
+    deviceState?:boolean
 }
 
 export default class DeviceCard extends Component<DeviceCard_props, DeviceCard_state>{
@@ -64,10 +66,54 @@ export default class DeviceCard extends Component<DeviceCard_props, DeviceCard_s
         this.state = {
 
         }
+        this.updateNextActionNotice = this.updateNextActionNotice.bind(this)
 
     }
+    intv:any
+    componentDidMount(): void {
+        this.intv= setInterval(()=>{
+            this.updateNextActionNotice();
 
+        },1000)
+    }
 
+    componentWillUnmount(): void {
+        clearInterval(this.intv)
+    }
+
+   updateNextActionNotice(){
+       let accuracy = 1; //1 for minuts, the current behaviioud is not optimized since it uses second interval anyway
+
+       let d = ClientUtils.cache.Devices.find(d=>d.ID==this.props.deviceID);
+       if(!d)return;
+       
+       
+       let p = d.Config.autoOptions.repeatEvery*1000;
+       let o = Math.floor(d.Config.autoOptions.startsAt.getTime()%p);
+       let o_stop = Math.floor((d.Config.autoOptions.startsAt.getTime()+(d.Config.autoOptions.duration*1000))%p);
+       let x  = Math.floor(Date.now());
+
+       let left_millis = (p_diff(p,o,x));
+       let left_millis_stop = (p_diff(p,o_stop,x));
+       let action = "Starts"
+       if(left_millis<left_millis_stop){
+
+       }
+       else{
+            left_millis= left_millis_stop;
+            action= "Stops"
+       }
+       accuracy = left_millis>1*60*1000? 1 : 0; //starts showing seconds under 3min
+       if(left_millis<=0){
+        this.setState({nextActionNotice:"-"})
+        return
+
+       }
+       let v = FormatDuration(Math.floor(left_millis/1000),accuracy).join(" ");
+       let notice =  `${action}  in ${v}`
+
+       this.setState({nextActionNotice:notice})
+   }
 
     render() {
         const auto = this.props.mode == "automated"
@@ -159,12 +205,12 @@ export default class DeviceCard extends Component<DeviceCard_props, DeviceCard_s
                 }} >
                     <DeviceState state={this.props.currentState} overrideStyle={{ marginRight: 4, alignSelf: "center" }} />
 
-                    {auto && <View style={{flexDirection:"row", alignItems:"center"}}> 
+                    {auto && this.state.nextActionNotice &&<View style={{flexDirection:"row", alignItems:"center"}}> 
                                 <SvgMi  size={12} color={"#232323"} xmldata={st.scheduleMi}></SvgMi>
 
                                 <Text style={{ color: "#515151", fontSize: 12,  includeFontPadding:false,
                                 fontFamily: "Roboto", fontStyle:"normal", fontWeight:"100", marginRight: 4, marginLeft:4 }}
-                                 >Starts in 7 h, 32 min</Text>
+                                 >{this.state.nextActionNotice}</Text>
                                  </View>
                             }
                 </View>}
