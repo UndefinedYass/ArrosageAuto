@@ -21,7 +21,7 @@ const DeviceCard_wraper_style : StyleProp<ViewStyle> = {
     minHeight:80,
     margin:8,
     marginBottom:0,
-    justifyContent:"space-between",
+    justifyContent:"center",
 
     borderRadius:10,
     paddingHorizontal:10, paddingVertical:4,
@@ -72,12 +72,13 @@ export default class DeviceCard extends Component<DeviceCard_props, DeviceCard_s
     render() {
         const auto = this.props.mode == "automated"
         const manual = this.props.mode == "manual"
+        const none = this.props.mode == "none"
         const deviceState = this.props.currentState;
         return (
             <TouchableHighlight underlayColor={"#f8f9fd"} activeOpacity={0.5} onPress={this.props.onClick}
-                style={[DeviceCard_wraper_style, { elevation: 1, marginBottom: 2, marginTop: 4 }]} >
+                style={[DeviceCard_wraper_style, { elevation: 1, marginBottom: 2, marginTop: 4, minHeight:(none?66:80), }]} >
                     <View>
-                <View style={{ flexDirection: "row", flex:1, minHeight:60, alignSelf: "stretch", alignItems: "stretch" }}>
+                <View style={{ flexDirection: "row", opacity:none?0.2:1 , flex:1, minHeight:60, alignSelf: "stretch", alignItems: "stretch" }}>
                     {false&&<Text style={{position:"absolute", backgroundColor:Palette.inkDarkGrey, 
                     color:Palette.lightHouse,paddingHorizontal:4,borderRadius:2, fontSize:11,
                      right:-14,top:4}} 
@@ -149,7 +150,7 @@ export default class DeviceCard extends Component<DeviceCard_props, DeviceCard_s
                              />}
                 </View>
 
-                <View style={{
+                {!none&& <View style={{
                     borderTopWidth: 1,
                     height: 30, borderTopColor: "#e4e4e7",
                     alignSelf: "stretch", alignItems: "center", 
@@ -166,7 +167,7 @@ export default class DeviceCard extends Component<DeviceCard_props, DeviceCard_s
                                  >Starts in 7 h, 32 min</Text>
                                  </View>
                             }
-                </View>
+                </View>}
 
                 </View>
             </TouchableHighlight>
