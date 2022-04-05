@@ -223,7 +223,12 @@ export default class DevicesScreen extends Component<DevicesScreen_props, Device
 
 
 
-
+const validationErrorNoticeStyle : StyleProp<TextStyle>  = {
+    color:Palette.lavaRed,
+    fontSize: 12,
+    fontWeight:"bold",
+    marginLeft:6,
+}
 const dialogButton_wrapper_style : StyleProp<ViewStyle>={
     marginHorizontal:6,
     paddingHorizontal:6,
@@ -247,6 +252,7 @@ type CreateDeviceDlg_props = {
 type CreateDeviceDlg_state = {
     currentLabel:string
     currentPin:string
+    LastValidationErrMsg?:string
 }
 /**
  * 
@@ -259,6 +265,7 @@ export class CreateDeviceDlg extends Component<CreateDeviceDlg_props, CreateDevi
             currentPin:this.determinUnusedPin(),
         }
         this.text_ref= createRef()
+        this.updteErrNotice = this.updteErrNotice.bind(this)
     }
     text_ref : RefObject<TextInput>
 
@@ -275,11 +282,11 @@ export class CreateDeviceDlg extends Component<CreateDeviceDlg_props, CreateDevi
     }
 
     isEmptyStr(){
-        return (this.state.currentLabel=="")||(!this.state.currentLabel)
+        return (this.state.currentLabel.trim()=="")||(!this.state.currentLabel)
     }
 
     validNumSTR(s:string){
-        return Number.isNaN(Number.parseInt(s))==false;
+        return Number.isNaN(Number.parseInt(s))==false&&(Number.parseInt(s)>=0);
     }
     canProceed():boolean{
         let labelInp = this.state.currentLabel;
@@ -303,13 +310,13 @@ export class CreateDeviceDlg extends Component<CreateDeviceDlg_props, CreateDevi
             return "invalid gpio pin number";
         }
         let pinNum = Number.parseInt(pin_inp);
-        if(ClientUtils.cache.Devices.some(d=>d.ID==pinNum.toString())){
+        if(ClientUtils.cache.DevicesHeaders.some(d=>d.ID.toString()==pinNum.toString())){
             return  `GPIO ${pinNum} id used for another device`
         }
         return null;
     }
     handleDoneClick(){
-        let labelInp = this.state.currentLabel;
+        let labelInp = this.state.currentLabel.trim();
         let pinInp = this.state.currentPin;
         let validate_err= this.validate(pinInp,labelInp)
         if(validate_err!=null){
@@ -324,6 +331,11 @@ export class CreateDeviceDlg extends Component<CreateDeviceDlg_props, CreateDevi
         this.props.onCancel()
         
     }
+    updteErrNotice(){
+        let labelInp = this.state.currentLabel.trim();
+        let pinInp = this.state.currentPin;
+        this.setState({LastValidationErrMsg:this.validate(pinInp,labelInp)})
+    }
     render() {
         const valid= this.validate(this.state.currentPin,this.state.currentLabel)==null
         return (
@@ -332,13 +344,17 @@ export class CreateDeviceDlg extends Component<CreateDeviceDlg_props, CreateDevi
                 >New device</Text>
                 <View style={{ marginLeft:6, flexDirection: "row", flex: 1,  alignItems: "center", justifyContent: "space-around" }} >
 
-                    <TextInput placeholder='Label'  autoCorrect={false}  value={this.state.currentLabel} autoFocus selectTextOnFocus  ref={this.text_ref} onChange={(e) => { this.setState({ currentLabel: e.nativeEvent.text }) }} underlineColorAndroid={Palette.primary_2} style={{ marginRight: 4, fontWeight:"400", fontSize:17, flex: 1 }}  ></TextInput>
+                    <TextInput placeholder='Label'  autoCorrect={false}  
+                    value={this.state.currentLabel} autoFocus selectTextOnFocus 
+                     ref={this.text_ref} onChange={(e) => { this.setState({ currentLabel: e.nativeEvent.text },()=>this.updteErrNotice()) }}
+                     underlineColorAndroid={Palette.primary_2} style={{ marginRight: 4, fontWeight:"400", fontSize:17, flex: 1 }}  ></TextInput>
 
                 </View>
                 <View style={{  marginLeft:6,flexDirection: "row", flex: 1, alignItems: "center", justifyContent: "flex-start" }} >
 
-                    <TextInput placeholder='GPIO' selectTextOnFocus  onChange={(e) => { this.setState({ currentPin: e.nativeEvent.text }) }} underlineColorAndroid={Palette.primary_2} keyboardType={"numeric"} style={{ marginRight: 4, maxWidth: 40 }} value={this.state.currentPin}  ></TextInput>
-
+                    <TextInput placeholder='GPIO' selectTextOnFocus  onChange={(e) => { this.setState({ currentPin: e.nativeEvent.text },()=>{this.updteErrNotice()}); }} 
+                    underlineColorAndroid={Palette.primary_2} keyboardType={"numeric"} style={{ marginRight: 4, maxWidth: 40 }} value={this.state.currentPin}  ></TextInput>
+                    {this.state.LastValidationErrMsg&&<Text style={validationErrorNoticeStyle} >{this.state.LastValidationErrMsg}</Text>}
                 </View>
 
 

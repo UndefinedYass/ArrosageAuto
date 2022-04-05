@@ -99,7 +99,7 @@ export class GPDurationPickerMi extends Component<GPDurationPickerMi_props, GPDu
             <View style={{flexDirection:"column", padding:10, minHeight:200, minWidth:Dimensions.get("window").width*0.8, backgroundColor:"#ffffffff", alignSelf:"center", }}>
                 <Text style={dialog_prompt_text_style} >Duration:</Text>
                 <View style={{flexDirection:"row",flex:1,alignItems:"center",justifyContent:"space-around"}} >
-                    <TextInput ref={this.text_ref} onChange={(e)=>{this.setState({currentText:e.nativeEvent.text})}} underlineColorAndroid={Palette.primary_2} keyboardType='numeric' style={{marginRight:4}} value={this.state.currentText}  ></TextInput>
+                    <TextInput selectTextOnFocus ref={this.text_ref} onChange={(e)=>{this.setState({currentText:e.nativeEvent.text})}} underlineColorAndroid={Palette.primary_2} keyboardType='numeric' style={{marginRight:4}} value={this.state.currentText}  ></TextInput>
                     <Picker onValueChange={(it)=>{this.setState({currentPickedOption:it})}} selectedValue={this.state.currentPickedOption} style={{ width:150 }} mode='dropdown'>
                         <Picker.Item label='Seconds' value={"s"} />
                         <Picker.Item label='Minutes' value={"m"} />
