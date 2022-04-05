@@ -304,14 +304,14 @@ export class CreateDeviceDlg extends Component<CreateDeviceDlg_props, CreateDevi
      */
     validate(pin_inp,lbl_inp):null|string{
         if(this.isEmptyStr()){
-            return 'invalid label'
+            return 'enter a valid label'
         }
         if(this.validNumSTR(pin_inp)==false){
-            return "invalid gpio pin number";
+            return "invalid GPIO pin number";
         }
         let pinNum = Number.parseInt(pin_inp);
         if(ClientUtils.cache.DevicesHeaders.some(d=>d.ID.toString()==pinNum.toString())){
-            return  `GPIO ${pinNum} id used for another device`
+            return   `GPIO ${pinNum} is already in use`
         }
         return null;
     }
