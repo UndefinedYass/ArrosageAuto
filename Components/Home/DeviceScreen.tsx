@@ -4,7 +4,7 @@
 import { pipelineTopicExpression } from '@babel/types';
 import DateTimePicker, {DateTimePickerAndroid} from '@react-native-community/datetimepicker';
 import React, { Component, createRef, RefObject } from 'react';
-import { Animated, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar, TextInput, FlatList, Image, Modal, Switch, AsyncStorage, Alert, AlertButton, ProgressBarAndroid, ColorPropType, VirtualizedList, Picker, Dimensions, ViewStyle, StyleProp, TextStyle, TouchableHighlight, DatePickerAndroid, Insets, ScrollView, Pressable, TouchableWithoutFeedback } from 'react-native';
+import { Animated, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar, TextInput, FlatList, Image, Modal, Switch, AsyncStorage, Alert, AlertButton, ProgressBarAndroid, ColorPropType, VirtualizedList, Picker, Dimensions, ViewStyle, StyleProp, TextStyle, TouchableHighlight, DatePickerAndroid, Insets, ScrollView, Pressable, TouchableWithoutFeedback, ToastAndroid } from 'react-native';
 import DatePicker from 'react-native-date-picker';
 import Svg, { Path, SvgXml } from 'react-native-svg';
 import ClientUtils, { AutoOptions, Conditon, ConfigMode, DeviceConfig } from '../../Services/ClientUtils';
@@ -102,7 +102,7 @@ export default class DeviceScreen extends Component<DeviceScreen_props, DeviceSc
         })
     }
     handleOptionsClick(){
-
+        alert("not implemented yet")
     }
     handleSaveChangesClick(){
         let newAutoOpts = this.autoOptsSection_ref.current.liftChanges();
@@ -110,6 +110,9 @@ export default class DeviceScreen extends Component<DeviceScreen_props, DeviceSc
             ClientUtils.SetDeviceConfig(this.props.deviceID,this.state.currentConfig).then(success=>{
                 if(!success){
                     alert("something went wrong")
+                }
+                else{
+                    ToastAndroid.show(`Saved settings`,1000);
                 }
             })
         });
