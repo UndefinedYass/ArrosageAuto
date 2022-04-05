@@ -124,7 +124,7 @@ export default class DeviceCard extends Component<DeviceCard_props, DeviceCard_s
             <TouchableHighlight underlayColor={"#f8f9fd"} activeOpacity={0.5} onPress={this.props.onClick}
                 style={[DeviceCard_wraper_style, { elevation: 1, marginBottom: 2, marginTop: 4, minHeight:(none?66:80), }]} >
                     <View>
-                <View style={{ flexDirection: "row", opacity:none?0.2:1 , flex:1, minHeight:60, alignSelf: "stretch", alignItems: "stretch" }}>
+                <View style={{ flexDirection: "row", opacity:none?0.4:1 , flex:1, minHeight:60, alignSelf: "stretch", alignItems: "stretch" }}>
                     {false&&<Text style={{position:"absolute", backgroundColor:Palette.inkDarkGrey, 
                     color:Palette.lightHouse,paddingHorizontal:4,borderRadius:2, fontSize:11,
                      right:-14,top:4}} 
@@ -139,7 +139,7 @@ export default class DeviceCard extends Component<DeviceCard_props, DeviceCard_s
                         <View style={{
                             flexDirection: "row", justifyContent: "flex-start", maxWidth: "100%", alignSelf: "flex-start", overflow: "hidden",
                         }} >
-                            <Text numberOfLines={1} ellipsizeMode="tail" style={{ color: Palette.deviceLabelColor, flexShrink: 1, flexWrap: "nowrap", fontFamily: "poppins", marginRight: 4 }} > {this.props.label}</Text>
+                            <Text numberOfLines={1} ellipsizeMode="tail" style={{ color: Palette.deviceLabelColor, flexShrink: 1, flexWrap: "nowrap", fontFamily: "poppins", marginRight: 4 }} > {this.props.label} {none&&"(Disabled)"}</Text>
                         </View>
                            
 
