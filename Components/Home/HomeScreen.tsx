@@ -1,8 +1,9 @@
 
 
 
+import AsyncStorage from '@react-native-community/async-storage';
 import React, { Component, createRef } from 'react';
-import { Animated, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar, TextInput, FlatList, Image, Modal, Switch, AsyncStorage, Alert, AlertButton, ProgressBarAndroid, ColorPropType, VirtualizedList, Picker, Dimensions, ViewStyle, StyleProp, TextStyle, ToastAndroid } from 'react-native';
+import { Animated, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar, TextInput, FlatList, Image, Modal, Switch, Alert, AlertButton, ProgressBarAndroid, ColorPropType, VirtualizedList, Picker, Dimensions, ViewStyle, StyleProp, TextStyle, ToastAndroid } from 'react-native';
 import ClientUtils, { Conditon, Device, DeviceCompact, Funcs } from '../../Services/ClientUtils';
 import SvgMi, { st } from '../Common/SvgMi';
 import { Palette } from '../Common/theme';
@@ -146,8 +147,15 @@ export default class HomeScreen extends Component<HomeScreen_props, HomeScreen_s
             ToastAndroid.show(`Couldn't connect to ${ClientUtils.Host}\n${err?.message}`,1000)
         });
     }
-    componentDidMount(): void {
-        this.refreshData()
+    componentDidMount() {
+        AsyncStorage.getItem('host',(err,host)=>{
+            if (host !== null) {
+                ClientUtils.Host = host;
+            }
+            this.refreshData()
+        });
+       
+       
     }
 
     

@@ -675,7 +675,7 @@ export  class AutoOptionsSection extends Component<AutoOptionsSection_props, Aut
                      <Text style={text_option_key_style} >Rules</Text>
                      <ConditionsEditor onRemove={(c)=>{
                          this.setState(old=>({
-                             currConditions:old.currConditions.filter(it=>(!((it.targetVar==c.targetVar)&&(it.type==c.type))))
+                             currConditions:old.currConditions.filter(it=>(!((it.targetVar==c.targetVar)&&(it.type==c.type)&&(it.param1==c.param1))))
                              
                              }))}} onAddClick={(()=>{this.setState({conditionForm_open:true})}).bind(this)} Conditions={this.state.currConditions} />
                  </View>

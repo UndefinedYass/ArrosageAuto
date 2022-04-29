@@ -1,7 +1,8 @@
 
 
+import AsyncStorage from '@react-native-community/async-storage';
 import React, { Component, createRef } from 'react';
-import { Animated, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar, TextInput, FlatList, Image, Modal, Switch, AsyncStorage, Alert, AlertButton, ProgressBarAndroid, ColorPropType, VirtualizedList, Picker, Dimensions, ViewStyle, StyleProp, TextStyle, Pressable } from 'react-native';
+import { Animated, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar, TextInput, FlatList, Image, Modal, Switch, Alert, AlertButton, ProgressBarAndroid, ColorPropType, VirtualizedList, Picker, Dimensions, ViewStyle, StyleProp, TextStyle, Pressable, ToastAndroid } from 'react-native';
 import ClientUtils, { Device } from '../../Services/ClientUtils';
 import { GPTextFieldDlg } from '../Common/GPDurationPickerMi';
 import SvgMi, { st } from '../Common/SvgMi';
@@ -86,9 +87,14 @@ export default class SettingsScreen extends Component<SettingsScreen_props, Sett
                     
                 </Modal>
                 
-                <Text  style={section_header_style} >Arduino server host &amp; port</Text>
+                <Text  style={section_header_style} >ESP32 host &amp; port</Text>
                 <Pressable android_ripple={{radius:200,color:"#aaaaaa"}}
-                  onPress={()=>{ this.openGPTextFieldDlg(ClientUtils.Host,"Esp server host and port:",(r)=>{ClientUtils.Host=r})}} 
+                  onPress={()=>{ this.openGPTextFieldDlg(ClientUtils.Host,"Esp server host and port:",(r)=>{
+                      ClientUtils.Host=r;
+                      AsyncStorage.setItem("host",r,()=>{
+                          ToastAndroid.show("Saved adddress",1000);
+                      })
+                    })}} 
 
                  >
                     
