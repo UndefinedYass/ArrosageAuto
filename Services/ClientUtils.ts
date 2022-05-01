@@ -2,6 +2,10 @@
 
 //API_v1 types can be altered but keep synced with server-mock project
 //todo make compatible with API changes 24-march-2022
+
+import { EventEmitter } from "react-native"
+import HomeScreen from "../Components/Home/HomeScreen"
+
 //note API 24-march-2022 is partially implemented here
 export type Device = {
     ID: string
@@ -39,12 +43,14 @@ export type TimeR = {t:number,m:number} //extended to include millis, compatible
 
 export default class ClientUtils {
     
+    //static WS : EventEmitter = new EventEmitter();
     /**
      * address and port on wich arduino server is listening
      *(to be assigned directely from the rest of the app)
      */
     static Host : string = "192.168.43.205:6262"
     static AccessToken : string //not used in dev mode
+    static socket : WebSocket; //added on 30-apr-2022 and will replace the old API
 
     /**a global state, stores temporary data and serve it back while fetch operations are taking place, 
      * this helps avoiding noticeable blank UI when loading e.g devviceScreen 
@@ -61,7 +67,43 @@ export default class ClientUtils {
 
 
 
+   
+    
+    static ws_onClose(ev : CloseEvent){
+        //this.WS.emit("closed");
+        this.Connect();
+    }
+    static ws_onOpen(ev: Event){
+        //this.WS.emit("opened");
+    }
+    static ws_onMsg(ev:MessageEvent){
 
+        let split =( ev.data as string) .split(";")
+        if(split.length==2){//after spec this corresponds to a server ev
+            let ev_name = split[0]
+            let ev_payloead = split[1]
+            console.log("ok:"+ev_payloead.toString())
+           
+            
+        } 
+        else if(split.length==4){//this corresponds to a server response
+            let ev_name = split[0]
+            let original_id= split[1]
+            let completion_code= split[2]
+            let ev_payloead = split[3]
+            console.log("ok:"+ev_payloead.toString())
+            
+            
+        } 
+        
+    }
+    static Connect(){
+       
+        this.socket = new WebSocket(`ws://${this.Host}/ws`);
+        this.socket.onclose = ClientUtils.ws_onClose;
+        this.socket.onopen = ClientUtils.ws_onOpen;
+        this.socket.onmessage = ClientUtils.ws_onMsg;
+    }
 
     /**
      * [api]
@@ -135,6 +177,19 @@ export default class ClientUtils {
             .catch(err=>{alert(err);reject(err)})
         })
     }
+
+    /**
+     * [ws api]
+     * @param deviceID 
+     * @returns 
+     */
+    static GetDeviceStateWs (deviceID: string): Promise<boolean>{
+    return new Promise((resolve,reject)=>{
+        
+    })
+}
+
+
     /**
      * [api] (todo update)
      */
@@ -272,7 +327,7 @@ export default class ClientUtils {
                     resolve(false)
                 }
             })
-            .catch(err=>{alert(err);reject(err)})
+            .catch(err=>{reject(err)})
         })
         
     }

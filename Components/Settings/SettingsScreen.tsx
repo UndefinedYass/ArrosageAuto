@@ -105,7 +105,22 @@ export default class SettingsScreen extends Component<SettingsScreen_props, Sett
                 <Text  style={values_text_style} >5f3c0d498a3246b879</Text>
 
                 <ButtonMi underlayColor={Palette.primary_2_brighter}
-                onClick={()=>{alert("not implemented yet")}} caption='Sync time'
+                onClick={()=>{
+                    const now = Date.now();//ms
+                    const d = new Date(now)
+                    ClientUtils.SetTime(d).then(succ=>{
+                        if(succ){
+
+                            ToastAndroid.show("Time: "+d.toString(),2000);
+                        }
+                        else{
+                            ToastAndroid.show("failed",1000);
+                        }
+                    })
+                    .catch(err=>{
+                        ToastAndroid.show("Connection failed",1000);
+                    })
+                }} caption='Sync time'
                 innerTextStyle={{color:Palette.primary_2_text,textTransform:"uppercase"}}
                 wrapperStyle={{backgroundColor:Palette.primary_2,paddingHorizontal:8,paddingVertical:8,borderRadius:6,alignSelf:"flex-start",marginHorizontal:6}}></ButtonMi>
             </View>

@@ -106,8 +106,11 @@ export const section_header_style : StyleProp<TextStyle> = {
 
 
 type HomeScreen_props = {
-
-
+    devicesCollectionCompact : DeviceCompact[]
+    currentHum:number,
+    currentTemp:number,
+    currentDhtError:string|null,
+    currentLDRValue : number
 }
 type HomeScreen_state = {
 
@@ -118,6 +121,7 @@ type HomeScreen_state = {
     currentHum:number,
     currentTemp:number,
     currentDhtError:string|null,
+    currentLDRValue : number
 
 }
 
@@ -133,6 +137,7 @@ export default class HomeScreen extends Component<HomeScreen_props, HomeScreen_s
             currentHum:ClientUtils.cache?.dhtLastResponse?.readings?.hum ,
             currentTemp:ClientUtils.cache.dhtLastResponse.readings.temp,
             currentDhtError:null,
+            currentLDRValue : 0
 
         }
     }
@@ -152,7 +157,9 @@ export default class HomeScreen extends Component<HomeScreen_props, HomeScreen_s
             if (host !== null) {
                 ClientUtils.Host = host;
             }
-            this.refreshData()
+           
+            ClientUtils.Connect();
+            //this.refreshData()
         });
        
        
