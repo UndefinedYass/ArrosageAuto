@@ -74,7 +74,7 @@ export default class AboutScreen extends Component<AboutScreen_props, AboutScree
 
 
                 <Text  style={[minor_header_style]} >Version: </Text>
-                <Text  style={values_text_style} >0.1.4-alpha (release date here)</Text>
+                <Text  style={values_text_style} >0.1.4-alpha (04-May-2022)</Text>
                 <Text  style={[minor_header_style]} >Developer: </Text>
                 <Text  style={values_text_style} >Yassine El Hanouti</Text>
                 <Text  style={minor_header_style} >UX/UI: </Text>

@@ -102,7 +102,6 @@ export default class ClientUtils  {
         dhtLastResponse:{readings:{temp:0,hum:0},error:null}
     }
 
-    static action_start =0;
 
 
 
@@ -117,28 +116,19 @@ export default class ClientUtils  {
         ClientUtils.WS.emit("open",null,null,null,null,null);
     }
     static ws_onMsg(ev:MessageEvent){
-        console.log("corresponds?")
         let split =( ev.data as string) .split(";")
         if(split.length==2){//after spec this corresponds to a server ev
-            console.log("corresponds to a server ev")
             let ev_name = split[0]
             let ev_payloead = split[1]
-            console.log("ok:"+ev_payloead.toString())
             ClientUtils.WS.emit(ev_name,ev_payloead,null,null,null,null)
-           
-            
         } 
         else if(split.length==4){//this corresponds to a server response
-            console.log("corresponds to a server response")
             let ev_name = split[0]
             let original_id= split[1]
             let completion_code= split[2]
             let ev_payloead = split[3]
-            console.log("ok:"+ev_payloead.toString())
-            console.log("WS:: emiting a "+ev_name)
-            ClientUtils.WS.emit(ev_name,original_id,completion_code,ev_payloead,null,null)
-            
-            
+            //console.log("WS:: emiting a "+ev_name)
+            ClientUtils.WS.emit(ev_name,original_id,completion_code,ev_payloead,null,null) 
         } 
         
     }
@@ -190,9 +180,6 @@ export default class ClientUtils  {
         return new Promise((resolve,reject)=>{
             this.WS.once("DevicesListGet-resp",(arg1,arg2,arg3)=>{
                 clearInterval(tmr)
-                console.log("got my list")
-                console.log(arg1)
-                console.log(arg3)
                 resolve(JSON.parse(arg3).devices)
             })
             this.socket.send(this.formatRequest("DevicesListGet",45,{}))
@@ -252,9 +239,6 @@ export default class ClientUtils  {
         return new Promise((resolve, reject) => {
             this.WS.once("DevicePost-resp", (arg1, arg2, arg3) => {
                 clearInterval(tmr)
-                console.log("got DevicePost resp")
-                console.log(arg1)
-                console.log(arg3)
                 resolve(arg2=="200")
             })
             this.socket.send(this.formatRequest("DevicePost", 46, {d_id:newDevice.ID},JSON.stringify(newDevice)))
@@ -289,9 +273,6 @@ export default class ClientUtils  {
         return new Promise((resolve,reject)=>{
             this.WS.once("DeviceDelete-resp", (arg1, arg2, arg3) => {
                 clearTimeout(tmr)
-                console.log("got DeviceDelete resp")
-                console.log(arg1)
-                console.log(arg3)
                 clearInterval(tmr)
                 resolve(arg2=="200")
             })
@@ -330,9 +311,6 @@ export default class ClientUtils  {
         return new Promise((resolve, reject) => {
             this.WS.once("DeviceStateGet-resp", (arg1, arg2, arg3) => {
                 clearTimeout(tmr)
-                console.log("got my list")
-                console.log(arg1)
-                console.log(arg3)
                 resolve(JSON.parse(arg3).resState == "off" ? false : true)
             });
             this.socket.send(this.formatRequest("DeviceStateGet", 46, {d_id:deviceID}))
@@ -370,12 +348,9 @@ export default class ClientUtils  {
     static SetDeviceStateWS(deviceID: string, userState: boolean): Promise<boolean> {
         return new Promise((resolve, reject) => {
             let reqS:BooleanStateRequest = {reqState:userState?"on":"off"}
-            console.log("senfing det device state")
+            console.log("sending delete device state")
             ClientUtils.WS.once("DeviceStatePut-resp", (arg1, arg2, arg3) => {
-                clearTimeout(tmr)
-                console.log("got my device state rep")
-                console.log(`after ${Date.now()-ClientUtils.action_start}`)
-            
+                clearTimeout(tmr)            
                 if(arg2!="200"){
                     console.log("got error "+arg2)
                     reject(arg2)
@@ -387,7 +362,6 @@ export default class ClientUtils  {
             let tmr = setTimeout(() => {
                 reject("timeout err")
             }, 2000);
-            console.log(`socket API call after ${Date.now()-ClientUtils.action_start}`)
         })
     }
 
@@ -445,7 +419,6 @@ export default class ClientUtils  {
                     reject(arg2)
                     return
                 }
-                console.log("got my dev config")
                 let deviceConfg:DeviceConfig = JSON.parse(arg3);
                 deviceConfg.autoOptions.startsAt=new Date(deviceConfg.autoOptions.startsAt);
                 let existent_cached_device = this.cache.Devices.find(d=>d.ID==deviceID)
@@ -609,9 +582,6 @@ export default class ClientUtils  {
             let timeR: TimeR = {t:newDate.getTime(),m:newDate.getMilliseconds()};
             this.WS.once("TimePut-resp", (arg1, arg2, arg3) => {
                 clearInterval(tmr)
-                console.log("got TimePut resp")
-                console.log(arg1)
-                console.log(arg3)
                 resolve(arg2=="200")
             });
             this.socket.send(this.formatRequest("TimePut", 46, {},JSON.stringify(timeR)))
