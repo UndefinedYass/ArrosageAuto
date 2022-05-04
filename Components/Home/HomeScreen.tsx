@@ -4,7 +4,7 @@
 import AsyncStorage from '@react-native-community/async-storage';
 import React, { Component, createRef } from 'react';
 import { Animated, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar, TextInput, FlatList, Image, Modal, Switch, Alert, AlertButton, ProgressBarAndroid, ColorPropType, VirtualizedList, Picker, Dimensions, ViewStyle, StyleProp, TextStyle, ToastAndroid } from 'react-native';
-import ClientUtils, { Conditon, Device, DeviceCompact, Funcs } from '../../Services/ClientUtils';
+import ClientUtils, { Conditon, Device, DeviceCompact, DeviceConfig, Funcs } from '../../Services/ClientUtils';
 import SvgMi, { st } from '../Common/SvgMi';
 import { Palette } from '../Common/theme';
 import DeviceCard from './DeviceCard';
@@ -110,81 +110,93 @@ type HomeScreen_props = {
     currentHum:number,
     currentTemp:number,
     currentDhtError:string|null,
-    currentLDRValue : number
+    currentLDRValue : number,
+    onDeviceStateChange:(id:string,newState:boolean)=>void,
+    onDeviceConfigChange:(id:string,newConfig:DeviceConfig)=>void,
 }
 type HomeScreen_state = {
 
     isDeviceScreenOpen : boolean
     /**id only */
     currentDeviceScreenDevice_cmp : DeviceCompact
-    devicesCollectionCompact : DeviceCompact[]
-    currentHum:number,
-    currentTemp:number,
+   
     currentDhtError:string|null,
-    currentLDRValue : number
+    currentLDRValue : number,
+    currentTemp:number, //temporary declared in state to test how fast registering the listener here instead of in app root
 
 }
 
 
 
 export default class HomeScreen extends Component<HomeScreen_props, HomeScreen_state>{
-    constructor(props) {
+    constructor(props:Readonly<HomeScreen_props>) {
         super(props)
         this.state = {
             isDeviceScreenOpen:false,
             currentDeviceScreenDevice_cmp:{ID:"",label:"",currentState:false,mode:"automated"},
-            devicesCollectionCompact :ClientUtils.cache.DevicesHeaders,
-            currentHum:ClientUtils.cache?.dhtLastResponse?.readings?.hum ,
-            currentTemp:ClientUtils.cache.dhtLastResponse.readings.temp,
             currentDhtError:null,
-            currentLDRValue : 0
+            currentLDRValue : 0,
+            currentTemp : props.currentTemp
 
         }
     }
 
-    refreshData(){
-        ClientUtils.GetDevicesHeaders(false).then(devicesComp=>this.setState({devicesCollectionCompact:devicesComp})).catch(err=>{
-            ToastAndroid.show(`Couldn't connect to ${ClientUtils.Host}\n${err?.message}`,1000)
-        });
-        ClientUtils.GetSensorsInfo()
-        .then(resp=>this.setState({currentHum:resp.readings.hum,currentTemp:resp.readings.temp,currentDhtError:resp.error}))
-        .catch(err=>{
-            ToastAndroid.show(`Couldn't connect to ${ClientUtils.Host}\n${err?.message}`,1000)
-        });
-    }
+   
     componentDidMount() {
-        AsyncStorage.getItem('host',(err,host)=>{
-            if (host !== null) {
-                ClientUtils.Host = host;
-            }
+        ClientUtils.WS.on("ldr-update",this.handleLdrUpdate,this)
+
+        /*if(ClientUtils.socket&&ClientUtils.socket.CLOSED){
            
-            ClientUtils.Connect();
-            //this.refreshData()
-        });
-       
-       
+        }
+        else{
+            ClientUtils.GetDevicesHeadersWs(false).then(hs=>{
+                this.setState({devicesCollectionCompact:hs})
+            })
+        }
+        
+        ClientUtils.WS.on("ldr-update",this.handleLdrUpdate.bind(this),"home")
+        ClientUtils.WS.on("dht-update",this.handleLdrUpdate.bind(this),"home")
+        ClientUtils.WS.on("DevicesList-update",
+        this.handleLdrUpdate.bind(this),"home")
+        */
+    }
+    componentWillUnmount(): void {
+        ClientUtils.WS.removeListener("ldr-update",this.handleLdrUpdate,this,false);
+        /*ClientUtils.WS.removeAllListeners("ldr-update",)
+        ClientUtils.WS.removeAllListeners("DevicesList-update")
+        ClientUtils.WS.removeAllListeners("dht-update")*/
     }
 
+    handleLdrUpdate(json:string){
+        this.setState({currentTemp:JSON.parse(json).value})
+    }
+    handleDHTUpdate(json:string){
+        //this.setState({currentHum:JSON.parse(json).hum})
+    }
+    handleDevcesListUpdate(json:string){
+        //this.setState({devicesCollectionCompact:JSON.parse(json).devices})
+    }
     
     render() {
         return (
             <View style={homeScreen_wraper_style} >
-                <Modal visible={this.state.isDeviceScreenOpen} onRequestClose={(()=>{this.setState({isDeviceScreenOpen:false});this.refreshData()}).bind(this)} >
+                <Modal visible={this.state.isDeviceScreenOpen} onRequestClose={(()=>{this.setState({isDeviceScreenOpen:false})}).bind(this)} >
                     <DeviceScreen deviceLabel={this.state.currentDeviceScreenDevice_cmp.label} deviceState={this.state.currentDeviceScreenDevice_cmp.currentState} deviceID={this.state.currentDeviceScreenDevice_cmp.ID} 
-                    
-                    onBack={(()=>{this.setState({isDeviceScreenOpen:false});this.refreshData()}).bind(this)}
+                    onDeviceConfigChange = {this.props.onDeviceConfigChange}
+                    onDeviceManualStateChange = {this.props.onDeviceStateChange}
+                    onBack={(()=>{this.setState({isDeviceScreenOpen:false});}).bind(this)}
                     />
                 </Modal>
                 <AppHeader />
                 <Text  style={section_header_style} >Sensor readings</Text>
-                <DHTPanel hum={this.state.currentHum} temp={this.state.currentTemp} />
+                <DHTPanel hum={this.props.currentHum} temp={this.state.currentTemp} />
                 <Text  style={section_header_style} >Devices</Text>
                 <FlatList style={{marginBottom:6}} 
                 
                 getItemLayout={(data,ix)=>({length:100,offset:112*ix,index:ix})}
-                data={this.state.devicesCollectionCompact.map(d=>({d:d,key:d.ID}))}
+                data={this.props.devicesCollectionCompact.map(d=>({d:d,key:d.ID}))}
                 renderItem={(it)=>(<DeviceCard mode={it.item.d.mode} deviceID={it.item.d.ID}  
-                    label={it.item.d.label} requestRefresh={(()=>{this.refreshData()}).bind(this)}
+                    label={it.item.d.label} requestRefresh={((s)=>{this.props.onDeviceStateChange(it.item.d.ID,s)})}
                      key={Funcs.DeviceCompactHash(it.item.d)} currentState={it.item.d.currentState}
                     onClick={()=>{this.setState({isDeviceScreenOpen:true,currentDeviceScreenDevice_cmp:it.item.d})}} ></DeviceCard>)}
                 ></FlatList>

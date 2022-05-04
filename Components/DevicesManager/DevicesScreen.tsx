@@ -39,11 +39,12 @@ const floatingAction_style : StyleProp<ViewStyle> ={
 
 type DevicesScreen_props = {
 
-
+    devicesCollectionCompact :  DeviceCompact[]
+    requestRefreshData : ()=>void
 }
 type DevicesScreen_state = {
     createDeviceDlg_open?:boolean
-    devicesCollectionCompact :  DeviceCompact[]
+    
     currentSelection :  string[] //selected card's IDs
 }
 
@@ -52,7 +53,6 @@ export default class DevicesScreen extends Component<DevicesScreen_props, Device
         super(props)
         this.state = {
             createDeviceDlg_open:false,
-            devicesCollectionCompact:ClientUtils.cache.DevicesHeaders||[],
             currentSelection : []
         }
         this.animated_opac= new Animated.Value(0);
@@ -83,16 +83,21 @@ export default class DevicesScreen extends Component<DevicesScreen_props, Device
 
         }
     }
-
+    /**
+     * @deprecated use requestRefreshData prop
+     */
     refreshData(){
-        ClientUtils.GetDevicesHeaders(false).then(devicesComp=>this.setState({devicesCollectionCompact:devicesComp})).catch(err=>{
+        //old http
+       /* ClientUtils.GetDevicesHeaders(false).then(devicesComp=>this.setState({devicesCollectionCompact:devicesComp})).catch(err=>{
             ToastAndroid.show(`Couldn't connect to ${ClientUtils.Host}\n${err?.message}`,1000)
         });
-       
+       */
     }
     componentDidMount(): void {
-        this.refreshData()
+        //this.refreshData()
+       
     }
+   
 
     handleLongPressFromCard(deviceID: string){
         this.setState(old=>{
@@ -126,7 +131,7 @@ export default class DevicesScreen extends Component<DevicesScreen_props, Device
         let sel_cc= this.state.currentSelection.length;
         for (let i = 0; i < sel_cc; i++) {
             const id = this.state.currentSelection[i];
-            let res = await ClientUtils.DeleteDevice(id)
+            let res = await ClientUtils.DeleteDeviceWS(id)
             if(res){
                 deletedIDS=deletedIDS.concat([id])
                 
@@ -139,7 +144,7 @@ export default class DevicesScreen extends Component<DevicesScreen_props, Device
         //alert(`Deleted ${deletedIDS.length} devices`);
         ClientUtils.cache.Devices = ClientUtils.cache.Devices.filter(d=>deletedIDS.includes(d.ID)==false)
         ClientUtils.cache.DevicesHeaders = ClientUtils.cache.DevicesHeaders.filter(d=>deletedIDS.includes(d.ID)==false)
-        this.refreshData();
+        this.props.requestRefreshData();
     }
 
 
@@ -155,16 +160,17 @@ export default class DevicesScreen extends Component<DevicesScreen_props, Device
                         <TouchableOpacity activeOpacity={1} style={{}}  onPressIn={()=>{}} >
                         <CreateDeviceDlg  
                         initialLabel='New device'
+                        devicesHeaders={ this.props.devicesCollectionCompact}
                         onCancel={()=>{
                             this.setState({createDeviceDlg_open:false})
                         }}  
                         onDone={(new_d)=>{
-                            ClientUtils.CreateDevice(new_d).then(success=>{
+                            ClientUtils.CreateDeviceWS(new_d).then(success=>{
                             if(!success) alert("something went wrong");
                             else{
                                 ToastAndroid.show(`Created device '${new_d.Config.label}'`,1000)
                                 
-                                this.refreshData();
+                                this.props.requestRefreshData();
                                 this.setState({createDeviceDlg_open:false})
                             }
                         })}}  />
@@ -189,7 +195,7 @@ export default class DevicesScreen extends Component<DevicesScreen_props, Device
                 </Animated.View>}
                 {true&&<Text  style={[section_header_style,{height:24}]} >Devices manager</Text>}
                 <FlatList
-                data={this.state.devicesCollectionCompact}
+                data={this.props.devicesCollectionCompact}
                 getItemLayout={(data, index) => (
                     {length: 90, offset: 90 * index, index}
                   )}
@@ -248,6 +254,7 @@ type CreateDeviceDlg_props = {
     onCancel?:()=>void
     onDone?:(newDevice:Device)=>void
     initialValue?:string
+    devicesHeaders : DeviceCompact[]
 }
 type CreateDeviceDlg_state = {
     currentLabel:string
@@ -271,11 +278,13 @@ export class CreateDeviceDlg extends Component<CreateDeviceDlg_props, CreateDevi
 
     componentDidMount(): void {
         //this.text_ref.current.focus()
+       
     }
+   
 
     determinUnusedPin():string{
         let i = 1;
-        while(ClientUtils.cache.DevicesHeaders.some(d=>d.ID==i.toString())){
+        while(this.props.devicesHeaders.some(d=>d.ID==i.toString())){
             i++;
         }
         return i.toString();
@@ -310,7 +319,7 @@ export class CreateDeviceDlg extends Component<CreateDeviceDlg_props, CreateDevi
             return "invalid GPIO pin number";
         }
         let pinNum = Number.parseInt(pin_inp);
-        if(ClientUtils.cache.DevicesHeaders.some(d=>d.ID.toString()==pinNum.toString())){
+        if(this.props.devicesHeaders.some(d=>d.ID.toString()==pinNum.toString())){
             return   `GPIO ${pinNum} is already in use`
         }
         return null;

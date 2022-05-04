@@ -3,7 +3,7 @@
 //API_v1 types can be altered but keep synced with server-mock project
 //todo make compatible with API changes 24-march-2022
 
-import { EventEmitter } from "react-native"
+import EventEmitter from "../Services/Common/eventemitter3"
 import HomeScreen from "../Components/Home/HomeScreen"
 
 //note API 24-march-2022 is partially implemented here
@@ -41,9 +41,47 @@ export type BooleanStateRequest ={reqState:"on"|"off"}
 export type DeviceCompact = {ID:string,label:string,currentState:boolean,mode:ConfigMode}
 export type TimeR = {t:number,m:number} //extended to include millis, compatible with 25-03
 
-export default class ClientUtils {
+//ws protocol types 
+export type  WSServerEvent = "dht-update"|"ldr-update"
+export type wsRequestParams = any
+export type  RequestTopic  = "DevicePost"|"DeviceConfigPut"|"DeviceStatePut"|"TimePut"|
+"DevicesListGet"|"DeviceConfigGet"|"DeviceStateGet"|"TimeGet"|"DHTStateGet"|"DeviceDelete" 
+export const RequestTopic_asList = ["DevicePost","DeviceConfigPut","DeviceStatePut","TimePut",
+"DevicesListGet","DeviceConfigGet","DeviceStateGet","TimeGet","DHTStateGet","DeviceDelete" ]
+
+
+
+class WSUtils extends EventEmitter{
+    /**
+     *
+     */
+    constructor() {
+        super();
+        
+    }
+
+    onDevicesListUpdate(){
+
+    }
+    onDeviceStateUpdate(){
+
+    }
+    onDeviceConfigUpdate(){
+
+    }
+    onLDRUpdate(){
+
+    }
+    onDHTUpdate(){
+
+    }
+
+}
+
+
+export default class ClientUtils  {
     
-    //static WS : EventEmitter = new EventEmitter();
+    static WS : EventEmitter = new EventEmitter();
     /**
      * address and port on wich arduino server is listening
      *(to be assigned directely from the rest of the app)
@@ -64,47 +102,101 @@ export default class ClientUtils {
         dhtLastResponse:{readings:{temp:0,hum:0},error:null}
     }
 
+    static action_start =0;
+
 
 
 
    
     
     static ws_onClose(ev : CloseEvent){
-        //this.WS.emit("closed");
-        this.Connect();
+        ClientUtils.WS.emit("closed",null,null,null,null,null);
+        //this.Connect();
     }
     static ws_onOpen(ev: Event){
-        //this.WS.emit("opened");
+        ClientUtils.WS.emit("open",null,null,null,null,null);
     }
     static ws_onMsg(ev:MessageEvent){
-
+        console.log("corresponds?")
         let split =( ev.data as string) .split(";")
         if(split.length==2){//after spec this corresponds to a server ev
+            console.log("corresponds to a server ev")
             let ev_name = split[0]
             let ev_payloead = split[1]
             console.log("ok:"+ev_payloead.toString())
+            ClientUtils.WS.emit(ev_name,ev_payloead,null,null,null,null)
            
             
         } 
         else if(split.length==4){//this corresponds to a server response
+            console.log("corresponds to a server response")
             let ev_name = split[0]
             let original_id= split[1]
             let completion_code= split[2]
             let ev_payloead = split[3]
             console.log("ok:"+ev_payloead.toString())
+            console.log("WS:: emiting a "+ev_name)
+            ClientUtils.WS.emit(ev_name,original_id,completion_code,ev_payloead,null,null)
             
             
         } 
         
     }
-    static Connect(){
-       
-        this.socket = new WebSocket(`ws://${this.Host}/ws`);
-        this.socket.onclose = ClientUtils.ws_onClose;
-        this.socket.onopen = ClientUtils.ws_onOpen;
-        this.socket.onmessage = ClientUtils.ws_onMsg;
+    static Connect():Promise<boolean>{
+        return new Promise((resolve,rejsect)=>{
+            this.socket = new WebSocket(`ws://${this.Host}/ws`);
+            this.socket.onclose = ClientUtils.ws_onClose;
+            this.socket.onmessage = ClientUtils.ws_onMsg;
+            this.socket.onopen = (ev)=>{ClientUtils.ws_onOpen(ev); this.socket.onopen =ClientUtils.ws_onOpen;  resolve(true);};
+            
+            //ClientUtils.WS = new EventEmitter();
+        })
+        
+
     }
 
+
+    //ws protocol returns undef on failure
+    static stringifyWSparams(params_obj: wsRequestParams): string {
+        let keys = Object.keys(params_obj)
+        let res = ""
+        let i = 0;
+        for (i = 0; i < keys.length; i++) {
+            const key = keys[i];
+            const val = params_obj[key];
+            if(key.includes("&")||val.includes("&")){
+                console.log("param cannot contain & characters")
+                return undefined;
+            }
+            res += `&${key}=${val}`
+        }
+        return res.substring(1);//removing the first & char
+    }
+    //ws protocol
+    static formatRequest(topic:RequestTopic, msg_id:number, params:wsRequestParams,pl?:object|string):string{
+        let formated_params = ClientUtils.stringifyWSparams(params);
+        if(formated_params===undefined){
+            return undefined;
+        }
+        return `${topic};${msg_id};${(pl?((typeof pl ==="string")?pl: JSON.stringify(pl)):"")};${formated_params}` // 3;'s
+    }
+
+
+
+    /**
+     * ws [api]
+     */
+     static GetDevicesHeadersWs(use_cache:boolean):Promise<DeviceCompact[]> {
+        return new Promise((resolve,reject)=>{
+            this.socket.send(this.formatRequest("DevicesListGet",45,{}))
+            this.WS.once("DevicesListGet-resp",(arg1,arg2,arg3)=>{
+                console.log("got my list")
+                console.log(arg1)
+                console.log(arg3)
+                resolve(JSON.parse(arg3).devices)
+            })
+        })
+    }
     /**
      * [api]
      * returns a colection of ompact device representations, that only include ID and label , potentially state asell
@@ -145,6 +237,29 @@ export default class ClientUtils {
         })
 
     }
+
+
+    /**
+     * [api ws]
+     */
+    static CreateDeviceWS(newDevice: Device): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            this.socket.send(this.formatRequest("DevicePost", 46, {d_id:newDevice.ID},JSON.stringify(newDevice)))
+            let tmr = setTimeout(() => {
+                reject("timeout err")
+            }, 2000);
+            this.WS.once("DevicePost-resp", (arg1, arg2, arg3) => {
+                console.log("got DevicePost resp")
+                console.log(arg1)
+                console.log(arg3)
+                clearInterval(tmr)
+                resolve(arg2=="200")
+            })
+        })
+
+    }
+
+
     /**
      * [api]
      */
@@ -157,6 +272,25 @@ export default class ClientUtils {
                 else resolve(false)//todo deleltion failure reason
             })
             .catch(err=>{alert(err);reject(err)})
+        })
+    }
+
+    /**
+     * [api ws]
+     */
+     static DeleteDeviceWS(deviceID: string):Promise<boolean>{
+        return new Promise((resolve,reject)=>{
+            this.socket.send(this.formatRequest("DeviceDelete", 46, {d_id:deviceID}))
+            let tmr = setTimeout(() => {
+                reject("timeout err")
+            }, 2000);
+            this.WS.once("DeviceDelete-resp", (arg1, arg2, arg3) => {
+                console.log("got DeviceDelete resp")
+                console.log(arg1)
+                console.log(arg3)
+                clearInterval(tmr)
+                resolve(arg2=="200")
+            })
         })
     }
 
@@ -183,17 +317,23 @@ export default class ClientUtils {
      * @param deviceID 
      * @returns 
      */
-    static GetDeviceStateWs (deviceID: string): Promise<boolean>{
-    return new Promise((resolve,reject)=>{
-        
-    })
-}
+    static GetDeviceStateWS(deviceID: string): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            this.socket.send(this.formatRequest("DeviceStateGet", 46, {d_id:deviceID}))
+            this.WS.once("DeviceStateGet-resp", (arg1, arg2, arg3) => {
+                console.log("got my list")
+                console.log(arg1)
+                console.log(arg3)
+                resolve(JSON.parse(arg3).resState == "off" ? false : true)
+            })
+        })
+    }
 
 
     /**
      * [api] (todo update)
      */
-    static SetDeviceState (deviceID: string, userState:boolean): Promise<boolean>{
+    static SetDeviceState_ (deviceID: string, userState:boolean): Promise<boolean>{
         return new Promise((resolve,reject)=>{
             let reqS:BooleanStateRequest = {reqState:userState?"on":"off"}
             fetch(`http://${ClientUtils.Host}/devices/${deviceID}/state`,
@@ -208,6 +348,29 @@ export default class ClientUtils {
         })
     }
 
+
+    /**
+     * [api] (todo update)
+     */
+    static SetDeviceStateWS(deviceID: string, userState: boolean): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            let reqS:BooleanStateRequest = {reqState:userState?"on":"off"}
+            console.log("senfing det device state")
+            ClientUtils.WS.once("DeviceStatePut-resp", (arg1, arg2, arg3) => {
+                console.log("got my device state rep")
+                console.log(`after ${Date.now()-ClientUtils.action_start}`)
+
+                if(arg2!="200"){
+                    console.log("got error "+arg2)
+                    reject(arg2)
+                    return
+                }
+                resolve  (JSON.parse(arg3).resState=="off"?false:true)
+            })
+            this.socket.send(this.formatRequest("DeviceStatePut", 47, {d_id:deviceID},reqS))
+            console.log(`socket API call after ${Date.now()-ClientUtils.action_start}`)
+        })
+    }
 
 
 
@@ -241,6 +404,44 @@ export default class ClientUtils {
 
         })
     }
+
+    /**
+     * [ws api]
+     * @param deviceID 
+     * @returns 
+     */
+     static GetDeviceConfigWS (deviceID: string, use_cache:boolean):Promise<DeviceConfig>{
+        return new Promise((resolve, reject) => {
+            if(use_cache){
+                let existent_cached_device = this.cache.Devices.find(d=>d.ID==deviceID)
+                if(existent_cached_device){
+                    resolve(existent_cached_device.Config); return
+                }  
+            }
+            this.socket.send(this.formatRequest("DeviceConfigGet", 46, {d_id:deviceID}))
+            this.WS.once("DeviceConfigGet-resp", (arg1, arg2, arg3) => {
+                if(arg2!="200"){
+                    console.log("got error "+arg2)
+                    reject(arg2)
+                    return
+                }
+                console.log("got my dev config")
+                let deviceConfg:DeviceConfig = JSON.parse(arg3);
+                deviceConfg.autoOptions.startsAt=new Date(deviceConfg.autoOptions.startsAt);
+                let existent_cached_device = this.cache.Devices.find(d=>d.ID==deviceID)
+                if(existent_cached_device){
+                    existent_cached_device.Config=deviceConfg
+                }
+                else{
+                    this.cache.Devices = this.cache.Devices.concat([{ID:deviceID,Config:deviceConfg,currentState:false}])//todo fix false
+                }
+                resolve  (deviceConfg)
+            })
+        })
+    }
+
+
+
     /**
      * [api] (todo pdate)
      * the echong behaviour is mock-only don't use it
@@ -280,6 +481,40 @@ export default class ClientUtils {
         
     }
 
+     /**
+     * [ws api]
+     * @param deviceID 
+     * @returns 
+     */
+      static SetDeviceConfigWS  (deviceID: string, config:DeviceConfig):Promise<boolean>{
+        return new Promise((resolve, reject) => {
+           //todo date obj at autooptions should be converted to number timestamp
+            //the folowing is a temporary hack, avoiding tweaking the config object itself
+            let badDTstr = JSON.stringify(config.autoOptions.startsAt)
+            let configStr = JSON.stringify(config);
+            configStr = configStr.replace(badDTstr,config.autoOptions.startsAt.getTime().toString())
+
+            console.log(configStr)
+            console.log(badDTstr)
+            this.socket.send(this.formatRequest("DeviceConfigPut", 47, {d_id:deviceID},configStr))
+            this.WS.once("DeviceConfigPut-resp", (arg1, arg2, arg3) => {
+                if(arg2!="200"){
+                    console.log("got error "+arg2)
+                    resolve(false)
+                    return
+                }
+                let existent_cached_device = this.cache.Devices.find(d=>d.ID==deviceID)
+                if(existent_cached_device){
+                    existent_cached_device.Config=config
+                }
+                else{
+                    this.cache.Devices = this.cache.Devices.concat([{ID:deviceID,Config:config,currentState:false}])//todo fix false
+                }
+                //alert('device set to '+ responseState.resState  )
+                resolve  (true)
+            })
+        })
+    }
 
 
 

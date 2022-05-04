@@ -61,7 +61,9 @@ type DeviceScreen_props = {
     deviceID: string,
     deviceState: boolean,
     deviceLabel:string,
-    onBack:()=>void
+    onBack:()=>void,
+    onDeviceConfigChange:(id:string,newConfig:DeviceConfig)=>void,
+    onDeviceManualStateChange:(id:string,newState:boolean)=>void,
 }
 type DeviceScreen_state = {
     currentConfig:DeviceConfig
@@ -82,20 +84,22 @@ export default class DeviceScreen extends Component<DeviceScreen_props, DeviceSc
     }
     autoOptsSection_ref : RefObject<AutoOptionsSection>
     componentDidMount(): void {
-        ClientUtils.GetDeviceConfig(this.props.deviceID,true)
+        ClientUtils.GetDeviceConfigWS(this.props.deviceID,true)
         .then(confg=>{
             this.setState({currentConfig:confg})
         })
 
-        ClientUtils.GetDeviceState(this.props.deviceID)
+        ClientUtils.GetDeviceStateWS(this.props.deviceID)
         .then(stt=>{
             this.setState({deviceState:stt})
         })
     }
     handleModeSelectionChange(newMode:string){
         this.setState((old)=>({currentConfig:{...old.currentConfig, mode:newMode as ConfigMode}}),()=>{
-            ClientUtils.SetDeviceConfig(this.props.deviceID,this.state.currentConfig).then((confg)=>{
-            
+            ClientUtils.SetDeviceConfigWS(this.props.deviceID,this.state.currentConfig).then((res)=>{
+                if(res){
+                    this.props.onDeviceConfigChange(this.props.deviceID,this.state.currentConfig)
+                }
 
             })
 
@@ -107,7 +111,7 @@ export default class DeviceScreen extends Component<DeviceScreen_props, DeviceSc
     handleSaveChangesClick(){
         let newAutoOpts = this.autoOptsSection_ref.current.liftChanges();
         this.setState((old)=>({currentConfig:{...old.currentConfig,autoOptions:newAutoOpts}}),()=>{
-            ClientUtils.SetDeviceConfig(this.props.deviceID,this.state.currentConfig).then(success=>{
+            ClientUtils.SetDeviceConfigWS(this.props.deviceID,this.state.currentConfig).then(success=>{
                 if(!success){
                     alert("something went wrong")
                 }
@@ -167,12 +171,17 @@ export default class DeviceScreen extends Component<DeviceScreen_props, DeviceSc
                              caption="START" 
                              isdisabled={deviceState}
                              onClick={()=>{
+                                ClientUtils.SetDeviceStateWS(this.props.deviceID,true)
+                                .then((res)=>{
+                                    //this.props.requestRefresh(res);
+                                    this.props.onDeviceManualStateChange(this.props.deviceID,res)
+                                })
                                 this.setState({deviceState:true},()=>{
-                                    requestAnimationFrame(()=>{
-                                        ClientUtils.SetDeviceState(this.props.deviceID,true)
-                                    .then((res)=>{this.setState({deviceState:res})})
+                                    
 
-                                    })
+                                   /* requestAnimationFrame(()=>{
+                                        
+                                    })*/
                                     
                                     
                                 })
@@ -191,11 +200,16 @@ export default class DeviceScreen extends Component<DeviceScreen_props, DeviceSc
                              isdisabled={!deviceState}
                              onClick={()=>{
                                 this.setState({deviceState:false},()=>{
-                                    requestAnimationFrame(()=>{
-                                        ClientUtils.SetDeviceState(this.props.deviceID,false)
-                                        .then((res)=>{this.setState({deviceState:res})})
+                                    ClientUtils.SetDeviceStateWS(this.props.deviceID,false)
+                                        .then((res)=>{
+                                            this.setState({deviceState:res});
+                                            this.props.onDeviceManualStateChange(this.props.deviceID,res)
+                                        
+                                        })
+                                    /*requestAnimationFrame(()=>{
+                                        
 
-                                    })
+                                    })*/
                                    
                                     
                                 })

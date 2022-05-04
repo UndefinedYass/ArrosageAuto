@@ -50,20 +50,21 @@ type DeviceCard_props = {
     currentState:boolean
     onClick:()=>void
     //**used when an action is trggered from the embedded in-card controls such as start/stop */
-    requestRefresh:()=>void
-
+    requestRefresh:(newState:boolean)=>void
 
 }
 type DeviceCard_state = {
 
     nextActionNotice?:string
-    deviceState?:boolean
+    button_third_state:boolean
+    
 }
 
 export default class DeviceCard extends Component<DeviceCard_props, DeviceCard_state>{
     constructor(props) {
         super(props)
         this.state = {
+            button_third_state:false
 
         }
         this.updateNextActionNotice = this.updateNextActionNotice.bind(this)
@@ -153,12 +154,16 @@ export default class DeviceCard extends Component<DeviceCard_props, DeviceCard_s
                              caption="START" 
                              isdisabled={deviceState}
                              onClick={()=>{
-                                this.setState({deviceState:true},()=>{
+                                 ClientUtils.action_start= Date.now();
+                                this.setState({button_third_state:true},()=>{
                                     requestAnimationFrame(()=>{
-                                        ClientUtils.SetDeviceState(this.props.deviceID,true)
-                                        .then((res)=>{this.setState({deviceState:res});
+                                        ClientUtils.SetDeviceStateWS(this.props.deviceID,true)
+                                        .then((res)=>{
+                                            console.log("resolved")
+                                            this.setState({button_third_state:false})
+
+                                            this.props.requestRefresh(res);
                                     
-                                        this.props.requestRefresh();
                                     })
 
                                     })
@@ -179,13 +184,13 @@ export default class DeviceCard extends Component<DeviceCard_props, DeviceCard_s
                              caption="STOP" 
                              isdisabled={!deviceState}
                              onClick={()=>{
-                                this.setState({deviceState:false},()=>{
+                                this.setState({button_third_state:true},()=>{
                                     requestAnimationFrame(()=>{
-                                        ClientUtils.SetDeviceState(this.props.deviceID,false)
+                                        ClientUtils.SetDeviceStateWS(this.props.deviceID,false)
                                         .then((res)=>{
-                                            this.setState({deviceState:res})
-                                        
-                                            this.props.requestRefresh();
+                                            this.setState({button_third_state:false})
+    
+                                            this.props.requestRefresh(res);
                                         })
 
                                     })
