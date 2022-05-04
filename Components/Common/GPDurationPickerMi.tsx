@@ -270,7 +270,7 @@ type ConditionCreateDlg_state = {
                     {caption:"<",value:"lt"}]}
                      />
                   
-                    <TextInput ref={this.text_ref} onChange={(e)=>{this.setState({currentParam1:e.nativeEvent.text})}} underlineColorAndroid={Palette.primary_2} keyboardType='numeric' style={{marginRight:4}} value={this.state.currentParam1}  ></TextInput>
+                    <TextInput selectTextOnFocus ref={this.text_ref} onChange={(e)=>{this.setState({currentParam1:e.nativeEvent.text})}} underlineColorAndroid={Palette.primary_2} keyboardType='numeric' style={{marginRight:4}} value={this.state.currentParam1}  ></TextInput>
 
                 </View>
                 <View style={{flexDirection:"row",alignItems:"center",justifyContent:"flex-end"}} >
