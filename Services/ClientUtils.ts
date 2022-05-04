@@ -184,20 +184,25 @@ export default class ClientUtils  {
 
 
     /**
-     * ws [api]
+     * [api ws]
      */
      static GetDevicesHeadersWs(use_cache:boolean):Promise<DeviceCompact[]> {
         return new Promise((resolve,reject)=>{
-            this.socket.send(this.formatRequest("DevicesListGet",45,{}))
             this.WS.once("DevicesListGet-resp",(arg1,arg2,arg3)=>{
+                clearInterval(tmr)
                 console.log("got my list")
                 console.log(arg1)
                 console.log(arg3)
                 resolve(JSON.parse(arg3).devices)
             })
+            this.socket.send(this.formatRequest("DevicesListGet",45,{}))
+            let tmr = setTimeout(() => {
+                reject("timeout err")
+            }, 2000);
         })
     }
     /**
+     * @deprecated
      * [api]
      * returns a colection of ompact device representations, that only include ID and label , potentially state asell
      * the use of cache arg will return a local stored data unless it's not found, passing false will return frech data and update the cacheed one
@@ -222,6 +227,7 @@ export default class ClientUtils  {
 
 
     /**
+     * @deprecated
      * [api]
      */
     static CreateDevice(newDevice: Device):Promise<boolean>{
@@ -244,23 +250,24 @@ export default class ClientUtils  {
      */
     static CreateDeviceWS(newDevice: Device): Promise<boolean> {
         return new Promise((resolve, reject) => {
+            this.WS.once("DevicePost-resp", (arg1, arg2, arg3) => {
+                clearInterval(tmr)
+                console.log("got DevicePost resp")
+                console.log(arg1)
+                console.log(arg3)
+                resolve(arg2=="200")
+            })
             this.socket.send(this.formatRequest("DevicePost", 46, {d_id:newDevice.ID},JSON.stringify(newDevice)))
             let tmr = setTimeout(() => {
                 reject("timeout err")
             }, 2000);
-            this.WS.once("DevicePost-resp", (arg1, arg2, arg3) => {
-                console.log("got DevicePost resp")
-                console.log(arg1)
-                console.log(arg3)
-                clearInterval(tmr)
-                resolve(arg2=="200")
-            })
         })
 
     }
 
 
     /**
+     * @deprecated
      * [api]
      */
     static DeleteDevice(deviceID: string):Promise<boolean>{
@@ -280,17 +287,18 @@ export default class ClientUtils  {
      */
      static DeleteDeviceWS(deviceID: string):Promise<boolean>{
         return new Promise((resolve,reject)=>{
-            this.socket.send(this.formatRequest("DeviceDelete", 46, {d_id:deviceID}))
-            let tmr = setTimeout(() => {
-                reject("timeout err")
-            }, 2000);
             this.WS.once("DeviceDelete-resp", (arg1, arg2, arg3) => {
+                clearTimeout(tmr)
                 console.log("got DeviceDelete resp")
                 console.log(arg1)
                 console.log(arg3)
                 clearInterval(tmr)
                 resolve(arg2=="200")
             })
+            this.socket.send(this.formatRequest("DeviceDelete", 46, {d_id:deviceID}))
+            let tmr = setTimeout(() => {
+                reject("timeout err")
+            }, 2000);
         })
     }
 
@@ -298,6 +306,7 @@ export default class ClientUtils  {
 
 
     /**
+     * @deprecated
      * [api]
      */
     static GetDeviceState (deviceID: string): Promise<boolean>{
@@ -313,24 +322,29 @@ export default class ClientUtils  {
     }
 
     /**
-     * [ws api]
+     * [api ws]
      * @param deviceID 
      * @returns 
      */
     static GetDeviceStateWS(deviceID: string): Promise<boolean> {
         return new Promise((resolve, reject) => {
-            this.socket.send(this.formatRequest("DeviceStateGet", 46, {d_id:deviceID}))
             this.WS.once("DeviceStateGet-resp", (arg1, arg2, arg3) => {
+                clearTimeout(tmr)
                 console.log("got my list")
                 console.log(arg1)
                 console.log(arg3)
                 resolve(JSON.parse(arg3).resState == "off" ? false : true)
-            })
+            });
+            this.socket.send(this.formatRequest("DeviceStateGet", 46, {d_id:deviceID}))
+            let tmr = setTimeout(() => {
+                reject("timeout err")
+            }, 2000);
         })
     }
 
 
     /**
+     * @deprecated
      * [api] (todo update)
      */
     static SetDeviceState_ (deviceID: string, userState:boolean): Promise<boolean>{
@@ -350,16 +364,18 @@ export default class ClientUtils  {
 
 
     /**
-     * [api] (todo update)
+     *
+     * [api ws] (todo update)
      */
     static SetDeviceStateWS(deviceID: string, userState: boolean): Promise<boolean> {
         return new Promise((resolve, reject) => {
             let reqS:BooleanStateRequest = {reqState:userState?"on":"off"}
             console.log("senfing det device state")
             ClientUtils.WS.once("DeviceStatePut-resp", (arg1, arg2, arg3) => {
+                clearTimeout(tmr)
                 console.log("got my device state rep")
                 console.log(`after ${Date.now()-ClientUtils.action_start}`)
-
+            
                 if(arg2!="200"){
                     console.log("got error "+arg2)
                     reject(arg2)
@@ -368,6 +384,9 @@ export default class ClientUtils  {
                 resolve  (JSON.parse(arg3).resState=="off"?false:true)
             })
             this.socket.send(this.formatRequest("DeviceStatePut", 47, {d_id:deviceID},reqS))
+            let tmr = setTimeout(() => {
+                reject("timeout err")
+            }, 2000);
             console.log(`socket API call after ${Date.now()-ClientUtils.action_start}`)
         })
     }
@@ -375,6 +394,7 @@ export default class ClientUtils  {
 
 
     /**
+     * @deprecated
      * [api]
      * @param deviceID 
      * @param use_cache 
@@ -406,7 +426,7 @@ export default class ClientUtils  {
     }
 
     /**
-     * [ws api]
+     * [api ws]
      * @param deviceID 
      * @returns 
      */
@@ -418,8 +438,8 @@ export default class ClientUtils  {
                     resolve(existent_cached_device.Config); return
                 }  
             }
-            this.socket.send(this.formatRequest("DeviceConfigGet", 46, {d_id:deviceID}))
             this.WS.once("DeviceConfigGet-resp", (arg1, arg2, arg3) => {
+                clearTimeout(tmr)
                 if(arg2!="200"){
                     console.log("got error "+arg2)
                     reject(arg2)
@@ -436,13 +456,19 @@ export default class ClientUtils  {
                     this.cache.Devices = this.cache.Devices.concat([{ID:deviceID,Config:deviceConfg,currentState:false}])//todo fix false
                 }
                 resolve  (deviceConfg)
-            })
+            });
+            this.socket.send(this.formatRequest("DeviceConfigGet", 46, {d_id:deviceID}))
+            let tmr = setTimeout(() => {
+                reject("timeout err")
+            }, 2000);
+
         })
     }
 
 
 
     /**
+     * @deprecated
      * [api] (todo pdate)
      * the echong behaviour is mock-only don't use it
      * updates cache a swell
@@ -482,7 +508,7 @@ export default class ClientUtils  {
     }
 
      /**
-     * [ws api]
+     * [api ws]
      * @param deviceID 
      * @returns 
      */
@@ -496,8 +522,8 @@ export default class ClientUtils  {
 
             console.log(configStr)
             console.log(badDTstr)
-            this.socket.send(this.formatRequest("DeviceConfigPut", 47, {d_id:deviceID},configStr))
             this.WS.once("DeviceConfigPut-resp", (arg1, arg2, arg3) => {
+                clearTimeout(tmr)
                 if(arg2!="200"){
                     console.log("got error "+arg2)
                     resolve(false)
@@ -512,13 +538,18 @@ export default class ClientUtils  {
                 }
                 //alert('device set to '+ responseState.resState  )
                 resolve  (true)
-            })
+            });
+            this.socket.send(this.formatRequest("DeviceConfigPut", 47, {d_id:deviceID},configStr))
+            let tmr = setTimeout(() => {
+                reject("timeout err")
+            }, 2000);
         })
     }
 
 
 
     /**
+     * @deprecated
      * [api] (not tested)
      */
     static GetTime ():Promise<Date>{
@@ -543,7 +574,8 @@ export default class ClientUtils  {
         })
     }
     /**
-     * [api] (not tested)
+     * @deprecated
+     * [api] 
      * resolves to true if server responded wth 200 status code and false otherwose
      * rejects on other connectivity failures
      * @param newDate 
@@ -567,11 +599,36 @@ export default class ClientUtils  {
         
     }
 
+    /**
+     * [api ws]
+     * @param newDate 
+     * @returns 
+     */
+    static SetTimeWS (newDate : Date):Promise<boolean>{
+        return new Promise<boolean>((resolve,reject)=>{
+            let timeR: TimeR = {t:newDate.getTime(),m:newDate.getMilliseconds()};
+            this.WS.once("TimePut-resp", (arg1, arg2, arg3) => {
+                clearInterval(tmr)
+                console.log("got TimePut resp")
+                console.log(arg1)
+                console.log(arg3)
+                resolve(arg2=="200")
+            });
+            this.socket.send(this.formatRequest("TimePut", 46, {},JSON.stringify(timeR)))
+            let tmr = setTimeout(() => {
+                reject("timeout err")
+            }, 2000);
+        })
+        
+    }
+
 
 
 
     /**
+     * @deprecated
      * [api]
+     * //the ws counterpart is not needed as the server pushes events automatically at a short intv
      * @returns 
      */
     static GetSensorsInfo ():Promise<dhtResponseType>{

@@ -108,7 +108,7 @@ export default class SettingsScreen extends Component<SettingsScreen_props, Sett
                 onClick={()=>{
                     const now = Date.now();//ms
                     const d = new Date(now)
-                    ClientUtils.SetTime(d).then(succ=>{
+                    ClientUtils.SetTimeWS(d).then(succ=>{
                         if(succ){
 
                             ToastAndroid.show("Time: "+d.toString(),2000);
@@ -118,7 +118,7 @@ export default class SettingsScreen extends Component<SettingsScreen_props, Sett
                         }
                     })
                     .catch(err=>{
-                        ToastAndroid.show("Connection failed",1000);
+                        ToastAndroid.show("Connection failed: "+err,1000);
                     })
                 }} caption='Sync time'
                 innerTextStyle={{color:Palette.primary_2_text,textTransform:"uppercase"}}
