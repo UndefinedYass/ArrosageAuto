@@ -162,8 +162,8 @@ export default class ClientUtils  {
         let res = ""
         let i = 0;
         for (i = 0; i < keys.length; i++) {
-            const key = keys[i];
-            const val = params_obj[key];
+            const key = keys[i].toString();
+            const val = params_obj[key].toString();
             if(key.includes("&")||val.includes("&")){
                 console.log("param cannot contain & characters")
                 return undefined;
