@@ -339,7 +339,7 @@ export  class DeviceInfoSection extends Component<DeviceInfoSection_props, Devic
 
                        
                             {true && <Text style={{ fontSize: 14 }} >|</Text>}
-                            <DeviceState state={this.props.deviceState} overrideStyle={{ alignSelf:"center",  marginLeft: 6 }} ></DeviceState>
+                            <DeviceState state={this.props.deviceState} overrideStyle={{ alignSelf:"center",  marginLeft: 6, minWidth:54 }} ></DeviceState>
 
 
                     </View>
