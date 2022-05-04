@@ -145,11 +145,11 @@ export default class DeviceCard extends Component<DeviceCard_props, DeviceCard_s
                            
 
                     </View>
-                    <View style={{ alignSelf: "center" }} >
-                    {manual&&!deviceState&& <ButtonMi
+                    <View style={{ alignSelf: "stretch" ,flexDirection:"row"}} >
+                    {manual&&!deviceState&& <ButtonMi  hitSlop={{top:40,bottom:40,left:20,right:20}}
                         innerTextStyle={action_button_style} 
                         underlayColor={Palette.primary_2_brighter}
-                        wrapperStyle={[{backgroundColor:Palette.primary_2,},
+                        wrapperStyle={[{backgroundColor:Palette.primary_2,alignSelf:"center"},
                             action_button_touchable_style]}
                              caption="START" 
                              isdisabled={deviceState}
@@ -161,23 +161,16 @@ export default class DeviceCard extends Component<DeviceCard_props, DeviceCard_s
                                         .then((res)=>{
                                             console.log("resolved")
                                             this.setState({button_third_state:false})
-
                                             this.props.requestRefresh(res);
-                                    
                                     })
-
                                     })
-                                   
-                                    
                                 })
                             }} 
                              />}
                         {auto&&<SvgMi  color='#515151' style={{
-                     
                     paddingHorizontal:4,}}  xmldata={st.autoMi} size={48} />}
 
-                    </View>
-                    {manual&&deviceState&&<ButtonMi
+                        {manual&&deviceState&&<ButtonMi hitSlop={{top:40,bottom:40,left:20,right:20}}
                         innerTextStyle={action_button_style} 
                         underlayColor={Palette.lavaRed_brighter}
                         wrapperStyle={[{backgroundColor:Palette.lavaRed,},action_button_touchable_style]}
@@ -199,6 +192,8 @@ export default class DeviceCard extends Component<DeviceCard_props, DeviceCard_s
                                 })
                             }} 
                              />}
+                    </View>
+                   
                 </View>
 
                 {!none&& <View style={{
