@@ -14,6 +14,7 @@ type ConditionsEditor_props = {
     Conditions: Conditon[]
     onAddClick: ()=>void
     onRemove: (condition: Conditon)=>void
+    onEditOne : (targetCondition:Conditon)=>void
 }
 type ConditionsEditor_state = {
 }
@@ -33,7 +34,7 @@ export class ConditionsEditor extends Component<ConditionsEditor_props, Conditio
                
             
                     {this.props.Conditions.map((it,ix)=>(
-                    <ConditionCard key={ix} condition={it}  onRemoveClick={(()=>{this.props.onRemove(it)}).bind(this)} />))}
+                    <ConditionCard key={ix} condition={it} onEditLongPress={(()=>{this.props.onEditOne(it)}).bind(this)}  onRemoveClick={(()=>{this.props.onRemove(it)}).bind(this)} />))}
                     <IconButtonMi innerSvgMiSize={20}  wrapperStyle={{marginLeft:6, 
                     borderRadius:100,height:28,width:28, elevation:1, backgroundColor:Palette.lightHouse}}
                      underlayColor={"#bbbbbb"} onClick={this.props.onAddClick} hitSlop={{top:2,bottom:2,right:16,left:16}} 
@@ -62,6 +63,7 @@ const Condition_text_style : StyleProp<TextStyle> = {
 type ConditionCard_props = {
     condition:Conditon
     onRemoveClick: ()=>void
+    onEditLongPress: ()=>void
 }
 type ConditionCard_state = {
 }
@@ -76,9 +78,11 @@ export class ConditionCard extends Component<ConditionCard_props, ConditionCard_
     }
     render() {
         return (
-            <View style={{flexDirection:"row",elevation:1, borderRadius:100, height:28, alignItems:"center", 
+            <TouchableOpacity delayLongPress={500} activeOpacity={0.8} style={{flexDirection:"row",elevation:1, borderRadius:100, height:28, alignItems:"center", 
             justifyContent:"center", marginVertical:2, marginHorizontal:2, backgroundColor:Palette.lightHouse,
-            paddingHorizontal:6, paddingLeft:6, paddingVertical:4,alignSelf:"flex-start"}}>
+            paddingHorizontal:6, paddingLeft:6, paddingVertical:4,alignSelf:"flex-start"}} 
+            onLongPress={this.props.onEditLongPress}
+            >
                 <View>
                     <Text style={Condition_text_style} >{this.props.condition.targetVar=="temp"?"temperature":"humidity"}</Text>
                 </View>
@@ -92,7 +96,7 @@ export class ConditionCard extends Component<ConditionCard_props, ConditionCard_
                      backgroundColor:Palette.inkDarkGrey}} underlayColor={"#bbbbbb"} onClick={this.props.onRemoveClick} 
                      hitSlop={{top:2,bottom:2,right:16,left:16}} innerSvgMiData={st.x_by_yass} 
                      color={Palette.whitePanel}   />
-            </View>
+            </TouchableOpacity>
         )
     }
 }

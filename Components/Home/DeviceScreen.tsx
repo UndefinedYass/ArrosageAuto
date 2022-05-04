@@ -489,7 +489,8 @@ type AutoOptionsSection_state = {
     dp_initial_dur: DurationTypeMi
     db_done_result: (dur: DurationTypeMi|null)=>void
     conditionForm_open : boolean
-
+    conditionForm_openForEdit : boolean //works with conditionForm_open, indicates whther the dialog will be used to create a new condition or edit an existing one
+    conditionToEdit : Conditon //used with conditionForm_openForEdit=true and holds reference to the original condition objeect that was long pressed by the user
 
 }
 export  class AutoOptionsSection extends Component<AutoOptionsSection_props, AutoOptionsSection_state>{
@@ -503,7 +504,10 @@ export  class AutoOptionsSection extends Component<AutoOptionsSection_props, Aut
             dp_open:false,
             dp_initial_dur: {unit:"d",value:1},
             conditionForm_open : false,
+            conditionForm_openForEdit: false,
+            conditionToEdit : null,
             db_done_result:()=>{},
+
         }
         this.openDurationPickerMi=this.openDurationPickerMi.bind(this)
     }
@@ -547,8 +551,17 @@ export  class AutoOptionsSection extends Component<AutoOptionsSection_props, Aut
                      alignContent:"center",justifyContent:"center", flexDirection:"column",alignItems:"center"}} 
                       onPressOut={(()=>{this.setState({conditionForm_open:false})}).bind(this)} >
                         <TouchableOpacity activeOpacity={1} style={{}}  onPressIn={()=>{}} >
-                        <ConditionCreateDlg onDone={(newCondition)=>{
-                            this.setState(old=>({currConditions:old.currConditions.concat([newCondition]),conditionForm_open:false}))
+                        <ConditionCreateDlg editMode={this.state.conditionForm_openForEdit} conditionToEdit={this.state.conditionToEdit}
+                         onDone={(newCondition)=>{
+                             if(this.state.conditionForm_openForEdit)
+                            this.setState(old=>({currConditions:old.currConditions.map((c)=>{
+                                if(c!=this.state.conditionToEdit) return c;
+                                else{ return newCondition
+                                }
+                            }),conditionForm_open:false,conditionForm_openForEdit:false}))
+                            else{ //case of creating new condition
+                                    this.setState(old=>({currConditions:old.currConditions.concat([newCondition]),conditionForm_open:false}))
+                            }
                         }} onCancel={()=>{
                             this.setState({conditionForm_open:false})
                         }} 
@@ -686,12 +699,15 @@ export  class AutoOptionsSection extends Component<AutoOptionsSection_props, Aut
                  
                  <Hoz/>
                  <View style={{marginTop:6}}>
-                     <Text style={text_option_key_style} >Rules</Text>
-                     <ConditionsEditor onRemove={(c)=>{
+                    <Text style={text_option_key_style} >Rules</Text>
+                    <ConditionsEditor onRemove={(c)=>{
                          this.setState(old=>({
-                             currConditions:old.currConditions.filter(it=>(!((it.targetVar==c.targetVar)&&(it.type==c.type)&&(it.param1==c.param1))))
-                             
-                             }))}} onAddClick={(()=>{this.setState({conditionForm_open:true})}).bind(this)} Conditions={this.state.currConditions} />
+                            currConditions:old.currConditions.filter(it=>(!((it.targetVar==c.targetVar)&&(it.type==c.type)&&(it.param1==c.param1))))}))}}
+                            onAddClick={(()=>{this.setState({conditionForm_open:true})}).bind(this)}
+                            onEditOne={((targetCond:Conditon)=>{this.setState({conditionForm_open:true,
+                                conditionForm_openForEdit:true,conditionToEdit:targetCond})}).bind(this)}
+                            Conditions={this.state.currConditions} 
+                    />
                  </View>
                  
             </View>

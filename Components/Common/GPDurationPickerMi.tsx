@@ -211,6 +211,8 @@ type ConditionCreateDlg_props = {
     onCancel?:()=>void
     onDone?:(newCondition:Conditon)=>void
     initialValue:Conditon
+    editMode : boolean
+    conditionToEdit: Conditon
 }
 type ConditionCreateDlg_state = {
     currentParam1:string
@@ -228,9 +230,9 @@ type ConditionCreateDlg_state = {
     constructor(props:Readonly<ConditionCreateDlg_props>) {
         super(props)
         this.state = {
-            currentParam1:"50",
-            currentTargetVar:"temp",
-            currentType:"gt",
+            currentParam1: props.editMode?props.conditionToEdit.param1.toString(): "50",
+            currentTargetVar: props.editMode?props.conditionToEdit.targetVar: "temp",
+            currentType: props.editMode?props.conditionToEdit.type: "gt",
 
         }
         this.text_ref=createRef();
