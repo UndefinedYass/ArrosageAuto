@@ -36,12 +36,12 @@ export default class SensorPanel extends Component<SensorPanel_props, SensorPane
          * and i switched to separate panels 
          */
         return (
-            <View style={{ flexDirection: "row", height: 100, justifyContent: "space-around", alignSelf: "stretch", }}>
+            <View style={{ flexDirection: "row", height: 80, justifyContent: "space-around", alignSelf: "stretch", }}>
                 <SensorPanelKeyValue keyStr='Humidity' 
-                value={this.props.hum.toString()} 
+                value={(19).toString() /*this.props.hum.toString()*/} 
                 value_unit='%'
                 style={{ marginHorizontal: 4, marginLeft: 8 }}
-                iconStyle={{ width: 32 }} iconSize={32}
+                iconStyle={{ width: 32 }} iconSize={24}
                 iconColor={"#6b90b3"} iconXmlData={st.waterDropsMi} 
                  />
 
@@ -60,7 +60,7 @@ export default class SensorPanel extends Component<SensorPanel_props, SensorPane
                 iconSize={32}
                 style={{ marginHorizontal: 4, marginRight: 8 }} 
                 iconStyle={{ width: 32 }} 
-                iconColor={"#ffd84d"} iconXmlData={st.wbSunny}
+                iconColor={"#e1927a"} iconXmlData={st.wbSunny}
                 />
 
             </View>
@@ -80,10 +80,10 @@ export default class SensorPanel extends Component<SensorPanel_props, SensorPane
 const SensorPanelKeyValue_wraper_style : StyleProp<ViewStyle> = {
     flex:1,
     //alignSelf:"stretch",
-    flexDirection:'row',
+    flexDirection:'column',
     alignItems:"center",
     backgroundColor:Palette.whitePanel,
-    justifyContent:"space-around",
+    justifyContent:"flex-start",
     borderRadius: 10,
     //margin:10,
     marginTop:6,
@@ -101,6 +101,7 @@ const key_text_style : StyleProp<TextStyle> = {
 
 const value_text_style : StyleProp<TextStyle> = {
     fontSize:20, fontWeight:"normal",
+    minHeight:26,
     fontFamily:"Nunito-SemiBold"
 }
 const value_unit_text_style : StyleProp<TextStyle> = {
@@ -134,14 +135,21 @@ class SensorPanelKeyValue extends Component<SensorPanelKeyValue_props, SensorPan
     render() {
         return (
             <View style={[SensorPanelKeyValue_wraper_style, this.props.style]} >
-                <View style={{ alignItems: "center", flex: 1, maxWidth: 80 }}>
-                    <SvgMi style={[{ width: 48 },this.props.iconStyle]} color={this.props.iconColor||Palette.inkDarkGrey} size={this.props.iconSize||48} xmldata={this.props.iconXmlData} />
+                <Text style={[key_text_style, { alignSelf: "flex-start",margin:10,marginBottom:2,marginTop:10 }]} > {this.props.keyStr} </Text>
+                <View style={{ flexDirection: "row", alignItems: "center" , minHeight:38, alignContent:"flex-start", justifyContent:"space-around", alignSelf:'stretch' }}>
+                    <View style={{ alignItems: "center", maxWidth: 80, minWidth:32, marginLeft:4 }}>
+                        <SvgMi style={[{ width: 48 }, this.props.iconStyle]} color={this.props.iconColor || Palette.inkDarkGrey} size={this.props.iconSize || 48} xmldata={this.props.iconXmlData} />
+                    </View>
+
+                        <Text style={[value_text_style,{minWidth:70,
+                            flex:1,backgroundColor:Palette.whitePanel,color:Palette.lightsOutBlack,
+                            textAlign:"center",
+                            borderTopLeftRadius:32,
+                            borderBottomLeftRadius:32,
+                            }]} > {this.props.value} <Text style={value_unit_text_style} >
+                            {this.props.value_unit}</Text> </Text>
                 </View>
-                <View style={{ flexDirection: "column", alignItems: "center", flex: 2 }} >
-                    <Text style={key_text_style} > {this.props.keyStr} </Text>
-                    <Text style={value_text_style} > {this.props.value} <Text style={value_unit_text_style} >
-                        {this.props.value_unit}</Text> </Text>
-                </View>
+
             </View>
 
 
