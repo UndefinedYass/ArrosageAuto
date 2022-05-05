@@ -9,7 +9,65 @@ import { Palette } from '../Common/theme';
 
 
 
-const DHTPanel_wraper_style : StyleProp<ViewStyle> = {
+
+
+type SensorPanel_props = {
+    hum:number
+    temp:number
+
+
+}
+type SensorPanel_state = {
+
+
+}
+
+export default class SensorPanel extends Component<SensorPanel_props, SensorPanel_state>{
+    constructor(props) {
+        super(props)
+        this.state = {
+        }
+
+    }
+    render() {
+
+        /**
+         * initially there was only one DHTPanel_wraper_style panel featuring two key-value pairs in a row
+         * and i switched to separate panels 
+         */
+        return (
+            <View style={{ flexDirection: "row", height: 100, justifyContent: "space-around", alignSelf: "stretch", }}>
+                <SensorPanelKeyValue keyStr='Humidity' 
+                value={this.props.hum.toString()} 
+                value_unit='%'
+                style={{ marginHorizontal: 8, marginRight: 4 }}
+                iconStyle={{ width: 48 }} 
+                iconColor={"#6b90b3"} iconXmlData={st.cloudCircle} 
+                 />
+
+
+                <SensorPanelKeyValue 
+                keyStr='Temperature' value={this.props.temp.toString()} 
+                value_unit='°C'
+                style={{ marginHorizontal: 8, marginLeft: 4 }} iconStyle={{ width: 48 }} 
+                iconColor={"#aa0033"} iconXmlData={st.deviceThermostat}
+                />
+
+            </View>
+
+        )
+    }
+}
+
+
+
+
+
+
+
+
+
+const SensorPanelKeyValue_wraper_style : StyleProp<ViewStyle> = {
     flex:1,
     //alignSelf:"stretch",
     flexDirection:'row',
@@ -26,66 +84,6 @@ const DHTPanel_wraper_style : StyleProp<ViewStyle> = {
     
 }
 
-type DHTPanel_props = {
-    hum:number
-    temp:number
-
-
-}
-type DHTPanel_state = {
-
-
-}
-
-export default class DHTPanel extends Component<DHTPanel_props, DHTPanel_state>{
-    constructor(props) {
-        super(props)
-        this.state = {
-        }
-
-    }
-    render() {
-       
-        /**
-         * initially there was only one DHTPanel_wraper_style panel featuring two key-value pairs in a row
-         * and i switched to separate panels todo: refactor and rename style approprately
-         */
-        return (
-            <View style={{flexDirection:"row", height:100,justifyContent:"space-around",alignSelf:"stretch",}}>
-            <View style={[DHTPanel_wraper_style,{marginHorizontal:8,marginRight:4}]} >
-                <View style={{alignItems:"center", flex:1,maxWidth:80}}>
-                    <SvgMi style={{width:48}}  color={"#6b90b3"} size={48} xmldata={st.cloudCircle} />
-                </View> 
-                
-                <DHTPanelKeyValue keyStr='Humidity' value={this.props.hum.toString()} value_unit='%'/>
-                {/*<View style={{height:"62%", width:1, backgroundColor:"#66666644"}} />
-                <DHTPanelKeyValue keyStr='Tempurature' value='25°C'/>*/ }
-            </View>
-            <View style={[DHTPanel_wraper_style,{marginHorizontal:8,marginLeft:4}]} >
-                <View style={{alignItems:"center", flex:1,maxWidth:80}}>
-                    <SvgMi style={{width:48}}  color={"#aa0033"} size={48} xmldata={st.deviceThermostat} />
-                </View> 
-                <DHTPanelKeyValue keyStr='Temperature' value={this.props.temp.toString()} value_unit='°C'/>
-                {/*<View style={{height:"62%", width:1, backgroundColor:"#66666644"}} />
-                <DHTPanelKeyValue keyStr='Tempurature' value='25°C'/>*/ }
-            </View>
-            
-            
-            </View>
-            
-        )
-    }
-}
-
-
-
-
-
-
-
-
-
-
 const key_text_style : StyleProp<TextStyle> = {
     color:"#666666"
 }
@@ -100,38 +98,42 @@ const value_unit_text_style : StyleProp<TextStyle> = {
 }
 
 
-type DHTPanelKeyValue_props = {
+type SensorPanelKeyValue_props = {
     keyStr:string
     value: string
     value_unit?:string
+    style?: StyleProp<ViewStyle>
+    iconStyle? : StyleProp<ViewStyle>
+    iconSize? : number
+    iconXmlData? : string
+    iconColor? : string
 }
-type DHTPanelKeyValue_state = {
+type SensorPanelKeyValue_state = {
 
 }
 
-class DHTPanelKeyValue extends Component<DHTPanelKeyValue_props, DHTPanelKeyValue_state>{
+class SensorPanelKeyValue extends Component<SensorPanelKeyValue_props, SensorPanelKeyValue_state>{
     constructor(props) {
         super(props)
         this.state = {
 
         }
 
-    }
+    }//{ marginHorizontal: 8, marginRight: 4 } color={"#6b90b3"}
     render() {
         return (
-
-            <View style={{flexDirection:"column", alignItems:"center",flex:2}} >
-               
-                <Text style={key_text_style} > {this.props.keyStr} </Text>
-                <Text style={value_text_style} > {this.props.value} <Text style={value_unit_text_style} >
-                    {this.props.value_unit}</Text> </Text>
-                
-                
-
-
-
-
+            <View style={[SensorPanelKeyValue_wraper_style, this.props.style]} >
+                <View style={{ alignItems: "center", flex: 1, maxWidth: 80 }}>
+                    <SvgMi style={[{ width: 48 },this.props.iconStyle]} color={this.props.iconColor||Palette.inkDarkGrey} size={this.props.iconSize||48} xmldata={this.props.iconXmlData} />
+                </View>
+                <View style={{ flexDirection: "column", alignItems: "center", flex: 2 }} >
+                    <Text style={key_text_style} > {this.props.keyStr} </Text>
+                    <Text style={value_text_style} > {this.props.value} <Text style={value_unit_text_style} >
+                        {this.props.value_unit}</Text> </Text>
+                </View>
             </View>
+
+
         )
     }
 

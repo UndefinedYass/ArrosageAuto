@@ -9,7 +9,7 @@ import SvgMi, { st } from '../Common/SvgMi';
 import { Palette } from '../Common/theme';
 import DeviceCard from './DeviceCard';
 import DeviceScreen from './DeviceScreen';
-import DHTPanel from './DHTPanel';
+import SensorPanel from './DHTPanel';
 
 
 export const dummyDevices : Device[] = [
@@ -189,7 +189,7 @@ export default class HomeScreen extends Component<HomeScreen_props, HomeScreen_s
                 </Modal>
                 <AppHeader />
                 <Text  style={section_header_style} >Sensor readings</Text>
-                <DHTPanel hum={this.props.currentHum} temp={this.state.currentTemp} />
+                <SensorPanel hum={this.props.currentHum} temp={this.state.currentTemp} />
                 <Text  style={section_header_style} >Devices</Text>
                 <FlatList style={{marginBottom:6}} 
                 
