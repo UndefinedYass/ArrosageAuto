@@ -51,6 +51,7 @@ export  default class App extends Component {
       currentTabIx : 0,
       currentTemp : 0,
       currentHum : 0,
+      currentIlluminance : 0,
       devicesCollectionCompact: [],
       connected : true,
 
@@ -78,9 +79,9 @@ export  default class App extends Component {
 
       ClientUtils.WS.on("closed",this.handleWSclosed.bind(this))
       ClientUtils.WS.on("open",this.handleWSOpen.bind(this))
-      ClientUtils.WS.on("ldr-update",this.handleLdrUpdate.bind(this),"app")
-      ClientUtils.WS.on("dht-update",this.handleLdrUpdate.bind(this),"app")
-      ClientUtils.WS.on("DevicesList-update",this.handleLdrUpdate.bind(this),"app")
+      ClientUtils.WS.on("ldr-update",this.handleLdrUpdate,this)
+      ClientUtils.WS.on("dht-update",this.handleDHTUpdate,this)
+      ClientUtils.WS.on("DevicesList-update",this.handleLdrUpdate,this)
       
      
       
@@ -110,11 +111,14 @@ export  default class App extends Component {
     this.setState({ connected:true})
   }
   handleLdrUpdate(json) {
-    this.setState({ currentTemp: JSON.parse(json).value })
+    this.setState({ currentIlluminance: JSON.parse(json).value })
   }
-  handleDHTUpdate(json) {
-    this.setState({ currentHum: JSON.parse(json).hum })
-  }
+  handleDHTUpdate(json){
+    const res = JSON.parse(json) 
+    const temp = res.readings?.temp || 0
+    const hum = res.readings?.hum || 0
+    this.setState({currentHum:hum,currentTemp:temp})
+}
   handleDevcesListUpdate(json) {
     console.log("app gor devices")
     this.setState({ devicesCollectionCompact: JSON.parse(json).devices })
@@ -169,6 +173,7 @@ export  default class App extends Component {
         return <HomeScreen devicesCollectionCompact={this.state.devicesCollectionCompact}
         currentHum = {this.state.currentHum} 
         currentTemp={this.state.currentTemp||0}
+        currentIlluminance = {this.state.currentIlluminance}
         onDeviceStateChange = {((id,newState)=>{
           this.setDeviceState(id,newState);
         }).bind(this)}
