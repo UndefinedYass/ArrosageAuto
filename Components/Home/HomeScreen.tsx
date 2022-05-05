@@ -4,7 +4,7 @@
 import AsyncStorage from '@react-native-community/async-storage';
 import React, { Component, createRef } from 'react';
 import { Animated, TouchableOpacity, StyleSheet, Text, View, Platform, StatusBar, TextInput, FlatList, Image, Modal, Switch, Alert, AlertButton, ProgressBarAndroid, ColorPropType, VirtualizedList, Picker, Dimensions, ViewStyle, StyleProp, TextStyle, ToastAndroid } from 'react-native';
-import ClientUtils, { Conditon, Device, DeviceCompact, DeviceConfig, Funcs } from '../../Services/ClientUtils';
+import ClientUtils, { Conditon, Device, DeviceCompact, DeviceConfig, dhtResponseType, Funcs } from '../../Services/ClientUtils';
 import SvgMi, { st } from '../Common/SvgMi';
 import { Palette } from '../Common/theme';
 import DeviceCard from './DeviceCard';
@@ -122,7 +122,9 @@ type HomeScreen_state = {
    
     currentDhtError:string|null,
     currentIlluminance : number,
-    currentTemp:number, //temporary declared in state to test how fast registering the listener here instead of in app root
+    currentTemp:number, //temporary declared in state to test preformance diif registering the listener here instead of in app root
+    currentHum:number,
+
 
 }
 
@@ -136,7 +138,8 @@ export default class HomeScreen extends Component<HomeScreen_props, HomeScreen_s
             currentDeviceScreenDevice_cmp:{ID:"",label:"",currentState:false,mode:"automated"},
             currentDhtError:null,
             currentIlluminance : props.currentIlluminance||0,
-            currentTemp : props.currentTemp
+            currentHum : props.currentHum||0,
+            currentTemp : props.currentTemp||0
 
         }
     }
@@ -144,6 +147,7 @@ export default class HomeScreen extends Component<HomeScreen_props, HomeScreen_s
    
     componentDidMount() {
         ClientUtils.WS.on("ldr-update",this.handleLdrUpdate,this)
+        ClientUtils.WS.on("dht-update",this.handleDHTUpdate,this)
 
         /*if(ClientUtils.socket&&ClientUtils.socket.CLOSED){
            
@@ -162,6 +166,7 @@ export default class HomeScreen extends Component<HomeScreen_props, HomeScreen_s
     }
     componentWillUnmount(): void {
         ClientUtils.WS.removeListener("ldr-update",this.handleLdrUpdate,this,false);
+        ClientUtils.WS.removeListener("dht-update",this.handleDHTUpdate,this,false);
         /*ClientUtils.WS.removeAllListeners("ldr-update",)
         ClientUtils.WS.removeAllListeners("DevicesList-update")
         ClientUtils.WS.removeAllListeners("dht-update")*/
@@ -171,7 +176,10 @@ export default class HomeScreen extends Component<HomeScreen_props, HomeScreen_s
         this.setState({currentIlluminance:JSON.parse(json).value})
     }
     handleDHTUpdate(json:string){
-        //this.setState({currentHum:JSON.parse(json).hum})
+        const res = JSON.parse(json) as dhtResponseType
+        const temp = res.readings?.temp || 0
+        const hum = res.readings?.hum || 0
+        this.setState({currentHum:hum,currentTemp:temp})
     }
     handleDevcesListUpdate(json:string){
         //this.setState({devicesCollectionCompact:JSON.parse(json).devices})
@@ -190,7 +198,7 @@ export default class HomeScreen extends Component<HomeScreen_props, HomeScreen_s
                 <AppHeader />
                 <Text  style={section_header_style} >Sensor readings</Text>
                 <SensorPanel 
-                hum={this.props.currentHum} 
+                hum={this.state.currentHum} 
                 temp={this.state.currentTemp}
                 lux={this.state.currentIlluminance} />
                 <Text  style={section_header_style} >Devices</Text>
