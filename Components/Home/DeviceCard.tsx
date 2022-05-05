@@ -154,7 +154,7 @@ export default class DeviceCard extends Component<DeviceCard_props, DeviceCard_s
                              caption="START" 
                              isdisabled={deviceState}
                              onClick={()=>{
-                                 ClientUtils.action_start= Date.now();
+                                 
                                 this.setState({button_third_state:true},()=>{
                                     requestAnimationFrame(()=>{
                                         ClientUtils.SetDeviceStateWS(this.props.deviceID,true)

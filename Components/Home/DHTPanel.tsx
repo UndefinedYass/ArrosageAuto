@@ -40,17 +40,27 @@ export default class SensorPanel extends Component<SensorPanel_props, SensorPane
                 <SensorPanelKeyValue keyStr='Humidity' 
                 value={this.props.hum.toString()} 
                 value_unit='%'
-                style={{ marginHorizontal: 8, marginRight: 4 }}
-                iconStyle={{ width: 48 }} 
-                iconColor={"#6b90b3"} iconXmlData={st.cloudCircle} 
+                style={{ marginHorizontal: 4, marginLeft: 8 }}
+                iconStyle={{ width: 32 }} iconSize={32}
+                iconColor={"#6b90b3"} iconXmlData={st.waterDropsMi} 
                  />
 
 
                 <SensorPanelKeyValue 
                 keyStr='Temperature' value={this.props.temp.toString()} 
                 value_unit='°C'
-                style={{ marginHorizontal: 8, marginLeft: 4 }} iconStyle={{ width: 48 }} 
+                style={{ marginHorizontal: 4 }} 
+                iconStyle={{ width: 32 }} iconSize={32}
                 iconColor={"#aa0033"} iconXmlData={st.deviceThermostat}
+                />
+
+                <SensorPanelKeyValue 
+                keyStr='Illuminance' value={this.props.temp.toString()} 
+                value_unit='lx'
+                iconSize={32}
+                style={{ marginHorizontal: 4, marginRight: 8 }} 
+                iconStyle={{ width: 32 }} 
+                iconColor={"#ffd84d"} iconXmlData={st.wbSunny}
                 />
 
             </View>
@@ -77,7 +87,7 @@ const SensorPanelKeyValue_wraper_style : StyleProp<ViewStyle> = {
     borderRadius: 10,
     //margin:10,
     marginTop:6,
-    elevation:3,
+    elevation:2,
     maxHeight:82,
     
 
@@ -85,12 +95,13 @@ const SensorPanelKeyValue_wraper_style : StyleProp<ViewStyle> = {
 }
 
 const key_text_style : StyleProp<TextStyle> = {
-    color:"#666666"
+    color:"#666666",
+    fontSize:11
 }
 
 const value_text_style : StyleProp<TextStyle> = {
-    fontSize:22, fontWeight:"normal",
-    fontFamily:"Comfortaa-Bold"
+    fontSize:20, fontWeight:"normal",
+    fontFamily:"Nunito-SemiBold"
 }
 const value_unit_text_style : StyleProp<TextStyle> = {
     fontSize:14, fontWeight:"normal",
