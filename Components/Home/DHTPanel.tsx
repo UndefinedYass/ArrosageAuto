@@ -14,6 +14,7 @@ import { Palette } from '../Common/theme';
 type SensorPanel_props = {
     hum:number
     temp:number
+    lux:number
 
 
 }
@@ -38,7 +39,7 @@ export default class SensorPanel extends Component<SensorPanel_props, SensorPane
         return (
             <View style={{ flexDirection: "row", height: 80, justifyContent: "space-around", alignSelf: "stretch", }}>
                 <SensorPanelKeyValue keyStr='Humidity' 
-                value={(19).toString() /*this.props.hum.toString()*/} 
+                value={this.props.hum.toString()} 
                 value_unit='%'
                 style={{ marginHorizontal: 4, marginLeft: 8 }}
                 iconStyle={{ width: 32 }} iconSize={24}
@@ -55,12 +56,12 @@ export default class SensorPanel extends Component<SensorPanel_props, SensorPane
                 />
 
                 <SensorPanelKeyValue 
-                keyStr='Illuminance' value={this.props.temp.toString()} 
+                keyStr='Illuminance' value={this.props.lux.toString()} 
                 value_unit='lx'
                 iconSize={32}
                 style={{ marginHorizontal: 4, marginRight: 8 }} 
                 iconStyle={{ width: 32 }} 
-                iconColor={"#e1927a"} iconXmlData={st.wbSunny}
+                iconColor={"#fab84c"} iconXmlData={st.wbSunny}
                 />
 
             </View>
@@ -100,9 +101,11 @@ const key_text_style : StyleProp<TextStyle> = {
 }
 
 const value_text_style : StyleProp<TextStyle> = {
-    fontSize:20, fontWeight:"normal",
+    fontSize:22, fontWeight:"normal",
     minHeight:26,
-    fontFamily:"Nunito-SemiBold"
+    fontFamily:"Nunito-SemiBold",
+    textAlignVertical:"center",
+    includeFontPadding:false
 }
 const value_unit_text_style : StyleProp<TextStyle> = {
     fontSize:14, fontWeight:"normal",
@@ -137,12 +140,12 @@ class SensorPanelKeyValue extends Component<SensorPanelKeyValue_props, SensorPan
             <View style={[SensorPanelKeyValue_wraper_style, this.props.style]} >
                 <Text style={[key_text_style, { alignSelf: "flex-start",margin:10,marginBottom:2,marginTop:10 }]} > {this.props.keyStr} </Text>
                 <View style={{ flexDirection: "row", alignItems: "center" , minHeight:38, alignContent:"flex-start", justifyContent:"space-around", alignSelf:'stretch' }}>
-                    <View style={{ alignItems: "center", maxWidth: 80, minWidth:32, marginLeft:4 }}>
+                    <View style={{ alignItems: "center", maxWidth: 80, minWidth:32, marginLeft:8 }}>
                         <SvgMi style={[{ width: 48 }, this.props.iconStyle]} color={this.props.iconColor || Palette.inkDarkGrey} size={this.props.iconSize || 48} xmldata={this.props.iconXmlData} />
                     </View>
 
-                        <Text style={[value_text_style,{minWidth:70,
-                            flex:1,backgroundColor:Palette.whitePanel,color:Palette.lightsOutBlack,
+                        <Text style={[value_text_style,{
+                            flex:1,color:Palette.lightsOutBlack,
                             textAlign:"center",
                             borderTopLeftRadius:32,
                             borderBottomLeftRadius:32,

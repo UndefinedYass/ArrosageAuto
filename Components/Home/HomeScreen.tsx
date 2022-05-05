@@ -110,7 +110,7 @@ type HomeScreen_props = {
     currentHum:number,
     currentTemp:number,
     currentDhtError:string|null,
-    currentLDRValue : number,
+    currentIlluminance : number,
     onDeviceStateChange:(id:string,newState:boolean)=>void,
     onDeviceConfigChange:(id:string,newConfig:DeviceConfig)=>void,
 }
@@ -121,7 +121,7 @@ type HomeScreen_state = {
     currentDeviceScreenDevice_cmp : DeviceCompact
    
     currentDhtError:string|null,
-    currentLDRValue : number,
+    currentIlluminance : number,
     currentTemp:number, //temporary declared in state to test how fast registering the listener here instead of in app root
 
 }
@@ -135,7 +135,7 @@ export default class HomeScreen extends Component<HomeScreen_props, HomeScreen_s
             isDeviceScreenOpen:false,
             currentDeviceScreenDevice_cmp:{ID:"",label:"",currentState:false,mode:"automated"},
             currentDhtError:null,
-            currentLDRValue : 0,
+            currentIlluminance : props.currentIlluminance||0,
             currentTemp : props.currentTemp
 
         }
@@ -168,7 +168,7 @@ export default class HomeScreen extends Component<HomeScreen_props, HomeScreen_s
     }
 
     handleLdrUpdate(json:string){
-        this.setState({currentTemp:JSON.parse(json).value})
+        this.setState({currentIlluminance:JSON.parse(json).value})
     }
     handleDHTUpdate(json:string){
         //this.setState({currentHum:JSON.parse(json).hum})
@@ -189,7 +189,10 @@ export default class HomeScreen extends Component<HomeScreen_props, HomeScreen_s
                 </Modal>
                 <AppHeader />
                 <Text  style={section_header_style} >Sensor readings</Text>
-                <SensorPanel hum={this.props.currentHum} temp={this.state.currentTemp} />
+                <SensorPanel 
+                hum={this.props.currentHum} 
+                temp={this.state.currentTemp}
+                lux={this.state.currentIlluminance} />
                 <Text  style={section_header_style} >Devices</Text>
                 <FlatList style={{marginBottom:6}} 
                 
