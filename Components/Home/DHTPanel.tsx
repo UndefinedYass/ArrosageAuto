@@ -30,7 +30,33 @@ export default class SensorPanel extends Component<SensorPanel_props, SensorPane
         }
 
     }
+
+    /**
+     * 5 -> 5 ,null (applies for interval 0,999)
+     * 1175 -> "1.1" ,"k" (applies for interval 1000,9 999)
+     * 23 110 -> "23" ,"k" (applies for interval 10 000,999 999)
+     * if num is out of supported range returns the same input
+     * @param rawNum 
+     */
+    formatUnit(rawNum:number,unit:string):{value:string,newUnit:string}{
+        if((rawNum>=0) && (rawNum<=999)){
+            return {value:(rawNum).toString(),newUnit:unit}
+        }
+        else if((rawNum>=1000) && (rawNum<=9999)){
+            return {value:(Math.round(rawNum/100)/10).toString(),newUnit:"k"+unit}
+        }
+        else if((rawNum>=10000) ){
+            return {value:Math.round(rawNum/1000).toString(),newUnit:"k"+unit}
+        }
+        
+        return {value:rawNum.toString(),newUnit:unit}
+        
+    }
+
     render() {
+        let formattedIlluminance = this.formatUnit(this.props.lux+5100155,"lx");
+        let numberOfCharacters = (formattedIlluminance.value+formattedIlluminance.newUnit).length
+        let Illuminance_best_size  = numberOfCharacters>=7?15:numberOfCharacters>=6?16:numberOfCharacters>=5?18:22
 
         /**
          * initially there was only one DHTPanel_wraper_style panel featuring two key-value pairs in a row
@@ -56,8 +82,9 @@ export default class SensorPanel extends Component<SensorPanel_props, SensorPane
                 />
 
                 <SensorPanelKeyValue 
-                keyStr='Illuminance' value={this.props.lux.toString()} 
-                value_unit='lx'
+                keyStr='Illuminance' value={formattedIlluminance.value/*this.props.lux.toString()*/} 
+                value_unit={formattedIlluminance.newUnit}
+                textOverridStyle={{fontSize:Illuminance_best_size}}
                 iconSize={32}
                 style={{ marginHorizontal: 4, marginRight: 8 }} 
                 iconStyle={{ width: 32 }} 
@@ -119,6 +146,10 @@ type SensorPanelKeyValue_props = {
     value_unit?:string
     style?: StyleProp<ViewStyle>
     iconStyle? : StyleProp<ViewStyle>
+    /**default size is 22*/
+    textOverridStyle? : StyleProp<TextStyle>
+    /**default size is 14*/
+    unitOverridStyle? : StyleProp<TextStyle>
     iconSize? : number
     iconXmlData? : string
     iconColor? : string
@@ -149,7 +180,7 @@ class SensorPanelKeyValue extends Component<SensorPanelKeyValue_props, SensorPan
                             textAlign:"center",
                             borderTopLeftRadius:32,
                             borderBottomLeftRadius:32,
-                            }]} > {this.props.value} <Text style={value_unit_text_style} >
+                            },this.props.textOverridStyle]} > {this.props.value} <Text style={[value_unit_text_style,this.props.unitOverridStyle]} >
                             {this.props.value_unit}</Text> </Text>
                 </View>
 
