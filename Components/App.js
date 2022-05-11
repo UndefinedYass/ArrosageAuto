@@ -54,6 +54,8 @@ export  default class App extends Component {
       currentIlluminance : 0,
       devicesCollectionCompact: [],
       connected : true,
+      /**once set to true the disconnected panel will be hidden untile app restatrts */
+      ConnectionStatusBarHidden : false
 
 
     }
@@ -204,9 +206,11 @@ export  default class App extends Component {
 
       {this.currentScreen(this.state.currentTabIx)}
       <TabBar onChange={this.hanldeTabChange?.bind(this)} itemsSelectedColor={Palette.primary_2} selected={this.state.currentTabIx}  itemsSelectedTextColor={Palette.primary_2}/>
-      {this.state.connected==false && <ConnectionStatusBar style={{position:"absolute",
-      top:56,width:"85%",height:44
-      }} Connected={this.state.connected}></ConnectionStatusBar>}
+      {this.state.connected==false && (this.state.ConnectionStatusBarHidden===false) && <ConnectionStatusBar style={{position:"absolute",
+      bottom:86,width:"85%",height:44
+      }} Connected={this.state.connected}
+      requestUserClose={(()=>{this.setState({ConnectionStatusBarHidden:true})}).bind(this)}
+      ></ConnectionStatusBar>}
       
     </View>
   )}

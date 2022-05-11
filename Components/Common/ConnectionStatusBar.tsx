@@ -6,8 +6,10 @@ import SvgMi, { st } from '../Common/SvgMi';
 import { Palette } from '../Common/theme';
 import { Picker } from '@react-native-picker/picker';
 import { ButtonMi } from "../Home/ButtonMi";
+import { IconButtonMi } from '../Home/IconButtonMi';
 
 type ConnectionStatusBar_props = {
+    requestUserClose : ()=>void
     Connected : boolean
     style?: StyleProp<ViewStyle>
 }
@@ -36,10 +38,11 @@ export class ConnectionStatusBar extends Component<ConnectionStatusBar_props, Co
                 <SvgMi xmldata={st.error} style={{marginHorizontal:12}} ></SvgMi>
                 <Text style={{color:Palette.whitePanel, flex:1,
                  fontFamily:"Roboto", 
-                 fontSize:13}} >{this.props.Connected==false?"Server disconnected":""}</Text>
-                  <Text style={{ marginHorizontal:12,color:Palette.app_logo_color_variant,
-                 fontFamily:"Roboto", 
-                 fontSize:13}} >{"RETRY"}</Text>
+                 fontSize:13}} >{this.props.Connected==false?"Server not connected":""}</Text>
+                  <IconButtonMi innerSvgMiSize={16} innerSvgMiData={st.x_by_yass} 
+                  color={Palette.lightHouse} hitSlop={{bottom:12,top:12,left:12,right:12}}
+                  onClick={this.props.requestUserClose}
+                  wrapperStyle={{ marginHorizontal:12}} ></IconButtonMi>
             </View>
         )
     }
