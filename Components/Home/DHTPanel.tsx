@@ -54,7 +54,7 @@ export default class SensorPanel extends Component<SensorPanel_props, SensorPane
     }
 
     render() {
-        let formattedIlluminance = this.formatUnit(this.props.lux+5100155,"lx");
+        let formattedIlluminance = this.formatUnit(this.props.lux,"lx");
         let numberOfCharacters = (formattedIlluminance.value+formattedIlluminance.newUnit).length
         let Illuminance_best_size  = numberOfCharacters>=7?15:numberOfCharacters>=6?16:numberOfCharacters>=5?18:22
 
